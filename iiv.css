@@ -40,7 +40,8 @@
   text-decoration: none !important;
   cursor: pointer;
 }
-/*Pete*/
+
+/Hat Project - Pete/
 .iiv-toolbar input {
     position: absolute;
     height: 35px;
@@ -195,14 +196,20 @@ button.text {
   margin-left: 176px;
 }
 
+
 button.print {
   margin-left: 209px;
 }
 
-/*Pete*/
+/*HAT Project Pete*/
 input.text {
     margin-left: 600px;
 }
+
+/*HAT Project Mark */
+button.highlight {
+  margin-left: 242px;
+} 
 
 /* print dialog */
 .iiv-print-dialog {
