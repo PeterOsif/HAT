@@ -41,11 +41,11 @@
   cursor: pointer;
 }
 
-/Hat Project - Pete/
+/*Hat Project - Pete*/
 .iiv-toolbar input {
     position: absolute;
-    height: 35px;
-    width: 150px;
+    height: 32px;
+    width: 130px;
     text-decoration: none !important;
     cursor: pointer;
 }
@@ -203,13 +203,17 @@ button.print {
 
 /*HAT Project Pete*/
 input.text {
-    margin-left: 600px;
+    margin-left: 500px;
 }
 
 /*HAT Project Mark */
 button.highlight {
   margin-left: 242px;
-} 
+}
+/*HAT Project Pete*/
+button.search{
+    margin-left: 460px;
+}
 
 /* print dialog */
 .iiv-print-dialog {

@@ -321,10 +321,11 @@ iiv.Viewer.UI = new iiv.Class({
     this.buttonPrint = this.createButton(controls, 'print', 'Print page', 'ui-icon-print');
     //HAT Changes
     this.buttonHighlight = this.createButton(controls, 'highlight', 'Highlight Text', 'ui-icon-pencil');    
+    
     return controls;
   },
   
-
+  <!-- Pete -->
   createSearchControls: function(toolbar){
     var controls = this.createControlSet(toolbar, 'other');
     this.SearchBar = this.createSearchBar(controls, 'text', 'Search Bar');
@@ -333,7 +334,7 @@ iiv.Viewer.UI = new iiv.Class({
     return controls;
   },
 
-
+  <!-- Pete -->
   createSearchBar: function(parent, name, title) {
       var searchBar = jQuery('<input class="'+ name +' ui-corner-all ui-state-default" name="searchBar" ID="searchBar" type="' + name + '"  title="' + title + '"/>');
 	  //var searchBar = jQuery('<input class="text" name="searchBar" id="searchBar" />');
