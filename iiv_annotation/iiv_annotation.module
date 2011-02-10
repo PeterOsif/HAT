@@ -1,0 +1,183 @@
+<?
+//commonly used strings
+$text_content_type = 'Content-Type: text/plain; charset: utf-8';
+
+/**
+ * Implementation of hook_menu().
+ */
+function iiv_annotation_menu() {
+  $items['islandora/annotation/insert/%/%/%/%'] = array(
+    'page callback' => 'iiv_annotation_insert',
+    'page arguments' => array(3,4,5,6),
+    'access arguments' => array('add annotations'), 
+    'type' => MENU_CALLBACK,
+  );
+  
+  $items['islandora/annotation/delete/%/%'] = array(
+  	'page callback' => 'iiv_annotation_delete',
+    'page arguments' => array(3,4),
+    'access arguments' => array('add annotations'),
+    'type' => MENU_CALLBACK,
+  );
+ 
+  $items['islandora/annotation/select/%'] = array(
+  	'page callback' => 'iiv_annotation_select',
+    'page arguments' => array(3),
+    'access arguments' => array('view annotations'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['islandora/annotation/flag/%'] = array(
+  	'page callback' => 'iiv_annotation_flag',
+    'page arguments' => array(3),
+    'access arguments' => array('flag annotations'),
+    'file' => 'inc/iiv_annotation_flagging.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['islandora/annotation/unflag/%'] = array(
+  	'page callback' => 'iiv_annotation_unflag',
+    'page arguments' => array(3),
+    'access arguments' => array('flag annotations'),
+    'file' => 'inc/iiv_annotation_flagging.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['islandora/annotation/clearflags/%'] = array(
+  	'page callback' => 'iiv_annotation_clearflags',
+    'page arguments' => array(3),
+    'access arguments' => array('administer annotations'),
+    'file' => 'inc/iiv_annotation_flagging.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/settings/iiv_annotation_flag'] = array(
+      'title' => 'IIV Annotation Flag Admin',
+      'description' => 'Managing Annotations flag',
+      'page callback' => 'iiv_annotation_flag_admin',
+      'access arguments' => array('administer annotations'),
+      'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function iiv_annotation_perm(){
+  return array('view annotations', 'administer annotations', 'add annotations', 
+               'remove own annotation', 'flag annotations');
+}
+
+/**
+*Implementation of hook_theme()
+*/
+function iiv_annotation_theme(){
+  $path = drupal_get_path('module', 'iiv_annotation');
+  return array(
+    'iiv_annotation_flag_admin' => array(
+      'template' => 'iiv_annotation_flag_admin',
+      'path' => $path
+    )
+  );
+}
+
+/*
+Return: prints to output
+Description: Tells Drupal to theme output using iiv_annotation_admin theme definition
+*/
+
+function iiv_annotation_flag_admin(){
+  //load the flag include file
+  module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_flagging');
+  return theme('iiv_annotation_flag_admin') . drupal_get_form('iiv_annotation_flag_settings_form');	
+}
+
+/*
+Return: prints to output
+Description: Returns annotation data for a given pid in JSON format
+*/
+function iiv_annotation_select($pid){
+  global $user;
+  $select_query = "SELECT * FROM {annotations} WHERE (public = 1 OR uid = %d) AND pid = '%s'";
+  $result = db_query($select_query, $user->uid, $pid);
+  $output = array();
+  $count = 0;
+  //load the include file
+  module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_utility');
+  while($row = db_fetch_array($result)){
+	
+	//sanatize the output of annotation_text, as it is user entered text
+	$row['annotation_text'] = check_plain($row['annotation_text']);
+	
+	//convert the row to JSON and add it to the output array
+    $output[$count] = _iiv_annotation_array2json($row);
+    $count++;	
+  }
+  drupal_set_header($text_content_type);//print text to client
+  //print all output elements as list of JSON objects
+  print implode(",", $output);
+}
+
+/*
+Return: prints to output
+Description: Inserts an annotation record
+*/
+function iiv_annotation_insert($pid, $text, $location, $public){
+  global $user;
+  $insert_query = "INSERT INTO {annotations}(pid,uid,annotation_text,annotation_location_size,public, timestamp)
+                   VALUES('%s',%d,'%s','%s',%d,%d)";
+  
+  //check if user has permissions to add annotations
+  if(user_access('add annotations')){
+	$result = db_query($insert_query,$pid,$user->uid,$text,$location,$public,time());
+	
+	//print result to output, let the client know its plain text
+	drupal_set_header($text_content_type);
+	$result == 1 ? print "success" : print "error";
+  } 
+}
+
+/*
+Return: prints to output
+Description: Deletes a given annotation
+*/
+function iiv_annotation_delete($aid, $op){
+  $delete_query = "DELETE FROM {annotations} WHERE aid = %d";
+ 
+
+  //if the user is an administrator, or if the user is deleting their own annotation
+  if(user_access('administer annotations') || 
+  (user_access('remove own annotation') && _iiv_annotation_user_owns_annotation($aid))){
+    $result = db_query($delete_query,$aid);
+    if($result){
+      //load the flagging include file so we can delete all flags belonging to annotation
+      module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_flagging');
+      iiv_annotation_delete_flags($aid);  
+    }
+  }
+  //$op is specified in the request to state whether to return plain text of to navigate back to flag admin page
+  if($op == 'json'){
+  	drupal_set_header($text_content_type);//print text to client
+    $result ? print "success" : print "error";
+  }
+  elseif($op == 'admin'){
+	$result ? drupal_set_message(t('annotation has been deleted')) : drupal_set_message(t('error deleting annotation'));
+	drupal_goto('admin/settings/iiv_annotation_flag');
+  }
+  
+}
+
+/*
+Return: boolean
+Description: determines if the current user owns an annotation
+*/
+function _iiv_annotation_user_owns_annotation($aid){
+  $select_query = "SELECT uid FROM {annotations} WHERE aid = %d";
+  $result= db_fetch_array(db_query($select_query, $aid));
+
+  global $user;
+  return $result['uid'] == $user->uid;
+}
+
