@@ -247,7 +247,9 @@ iiv.Viewer.UI = new iiv.Class({
 
   buttonHighlight: null, 
   SearchBar: null,
-  buttonSearch: null, 
+  buttonSearch: null,
+
+  buttonAnnotation: null,
   
   initialize: function(options) {
     this.createUI();
@@ -331,6 +333,8 @@ iiv.Viewer.UI = new iiv.Class({
     this.SearchBar = this.createSearchBar(controls, 'text', 'Search Bar');
     //add the search button
     this.buttonSearch = this.createButton(controls, 'search', 'Search', 'ui-icon-search');
+    //add annotation button
+    this.buttonAnnotation = this.createButton(controls, 'annotation', 'Annotation', 'iiv-icon-text');
     return controls;
   },
 
@@ -472,6 +476,10 @@ iiv.Viewer.UI = new iiv.Class({
     viewerUI.buttonSearch.click(function() {
     	viewerUI.searchToggle();
       });
+    // Pete, function for annotation button.
+    viewerUI.buttonAnnotation.click(function() {
+         viewerUI.annotationToggle();
+     });
   },
   
   printPage: function() {
@@ -548,7 +556,12 @@ iiv.Viewer.UI = new iiv.Class({
   searchToggle: function(){
 	  var testVar = document.getElementById('searchBar').value;
 	  alert("Search Event, Users search text is: " + testVar );
-  }	
+  },
+
+  // Pete Annotation button function.
+  annotationToggle: function(){
+      alert("Make annotations dissappear... or reapprear");
+  }
 
 });
 

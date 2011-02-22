@@ -215,6 +215,11 @@ button.search{
     margin-left: 460px;
 }
 
+/*Hat Project Pete*/
+button.annotation{
+    margin-left: 640px;
+}
+
 /* print dialog */
 .iiv-print-dialog {
   display: none;
