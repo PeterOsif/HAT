@@ -220,6 +220,10 @@ button.annotation{
     margin-left: 640px;
 }
 
+button.polygon{
+    margin-left: 425px;
+}
+
 /* print dialog */
 .iiv-print-dialog {
   display: none;
