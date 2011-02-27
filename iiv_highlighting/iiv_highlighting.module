@@ -18,60 +18,67 @@ function iiv_highlighting_menu() {
 
 
 function iiv_highlighting_highlight($pid, $query){
+$query_arr = array();
 //Decompose the query into single word, and store them in the query_arr array.
 $query_arr = explode(" ",$query);					
 //Generate the coodinates file url.
 $host = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
 $coodinates_url = $host.'/objects/'.$pid.'/datastreams/WORDSXY/content';
 $xmlDoc = new DOMDocument();
-$xmlDoc->load($coodinates_url);
-$root = $xmlDoc -> documentElement;
-//Get each subtree of single line.
-$element = $root->getElementsByTagName('par');
-$result = array();
-
-foreach($element as $new)
+if($xmlDoc->load($coodinates_url))
 {
-	$child = $new->childNodes;
-	for($i=0;$i<$child->length;$i++)
+	$root = $xmlDoc -> documentElement;
+	//Get each subtree of single line.
+	$element = $root->getElementsByTagName('par');
+	$result = array();
+	
+	foreach($element as $new)
 	{
-		// find the word in the coordinate file which is the same as the first key word.
-		if($query_arr[0] == $child->item($i)->firstChild->nodeValue)
+		$child = $new->childNodes;
+		for($i=0;$i<$child->length;$i++)
 		{
-			$count = $i;
-			$j = 1;
-			$OK = true;
-			
-			//check if the order and the position of key words are the same as the words in the coordinate file.
-			while($j<count($query_arr)&&$OK)
+			// find the word in the coordinate file which is the same as the first key word.
+			if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
 			{
-				$count ++;
-				if($count<$child->length)
+				$count = $i;
+				$j = 1;
+				$OK = true;
+				
+				//check if the order and the position of key words are the same as the words in the coordinate file.
+				while($j<count($query_arr)&&$OK)
 				{
-					if($query_arr[j] != $child->item($count)->firstChild->nodeValue)
+					$count += 2;
+					if($count<$child->length)
 					{
-						$OK = false;
+						if(strcasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue) !=0)
+						{
+							$OK = false;
+						}
 					}
+					$j++;	
 				}
-				$j++;	
-			}
-			if($OK)
-			{
-				//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
-				for($k=0;$k<count($query_arr);$k++)
+				if($OK)
 				{
-					$number = $i+2*$k;
-					$temp = array('l'=>$child->item($number)->getAttribute('l'),'t'=>$child->item($number)->getAttribute('t'),'r'=>$child->item($number)->getAttribute('r'),'b'=>$child->item($number)->getAttribute('b'));
-					array_push($result,$temp);
-			
+					//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
+					for($k=0;$k<count($query_arr);$k++)
+					{
+						$number = $i+2*$k;
+						$temp = array('l'=>$child->item($number)->getAttribute('l'),'t'=>$child->item($number)->getAttribute('t'),'r'=>$child->item($number)->getAttribute('r'),'b'=>$child->item($number)->getAttribute('b'));
+						array_push($result,$temp);
+				
+					}
 				}
 			}
 		}
+	
 	}
-
+	//Output is a json object. 
+	echo json_encode($result);
 }
-//Output is a json object. 
-echo json_encode($result);
+else
+{
+	print "This PID does not exist!";
+}
   
 }
 
