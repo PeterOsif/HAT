@@ -1,0 +1,41 @@
+<html>
+<meta HTTP-EQUIV="Expires" content="27 Aug 2007 00:00:00 GMT" />
+<meta HTTP-EQUIV="Cache-Control" content="no-cache" />
+<body>
+<script type="text/javascript" src="jquery-1.5.js"></script>
+<script type="text/javascript" src="js/iivutil.js"></script>
+
+<form name="data">
+	
+	pid:<input type="text" name="pid" value="abc1234" /><br/>
+	uid:<input type="text" name="uid" value="uid123" /><br/>
+	aid:<input type="text" name="aid" value="2" /><br/>
+	Annotation text:<input type="text" name="annotationText" value="some text" /><br/>
+	Coordinate info (example x=1,y=2,d=1,d0=2):<input type="text" name="annotationCoordinates" value="x=1,y=2,d=1,d0=2" />(addAnnotation("abc1234","uid123","text","x=1,y=1,d0=1,d1=1","1");) <br/>
+	Private:<input type="text" name="annotationPrivate" value="1" />
+	
+<br/>
+<br/>
+<br/>
+	<input type="button" name="Add Annotation" value="Add" onclick='addAnnotation(document.data.pid.value,document.data.uid.value,document.data.annotationText.value,document.data.annotationCoordinates.value,document.data.annotationPrivate.value);'/>
+	<input type="button" name="Search Annotation" value="Search" onclick='queryForAnnotation(document.data.pid.value);'/>
+	<input type="button" name="Delete Annotation" value="Delete" onclick='deleteAnnotation(document.data.aid.value);'/>
+	<input type="button" name="Flag" value="Flag" onclick='flagAnnotation(document.data.aid.value);'/>
+	<input type="button" name="unFlag" value="UnFlag" onclick='unflagAnnotation(document.data.aid.value);'/>
+	<br/>
+	<br/>
+	Status Message<input type="text" name="myData" value="test" /><br/>
+</form>
+<script type="text/javascript">
+//addAnnotation("abc1234","uid123","text","x=1,y=1,d0=1,d1=1","1");
+
+//showMe();
+</script>
+
+<div class="status">
+
+Messages:<BR/>
+
+</div>
+</body>
+</html> 

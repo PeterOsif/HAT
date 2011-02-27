@@ -1,6 +1,10 @@
 // 1
 
 var iiv = {};
+// added for popup - sfb
+var polygonLayer;
+var map;
+// end of add sfb
 
 iiv.Class = function(prototype) {
     var c = function(options) {
@@ -79,8 +83,27 @@ iiv.Viewer = new iiv.Class({
     var lon = this.map.maxExtent.width / 2;
     var lat = this.map.maxExtent.height / 2;
     this.map.setCenter(new OpenLayers.LonLat(lon, lat), 0);
-  },
+ 
+    //added by sfb
+    // polygon control for use with popup boxes
+    map = this.map; 
+     //polyControl is used for selections and eventually annotations
+    polyControl = new OpenLayers.Control(this.map);
 
+    OpenLayers.Util.extend(polyControl, {
+      draw: function() {
+         this.box = new OpenLayers.Handler.RegularPolygon(polyControl,
+              {"done": this.notice}, {sides:4, irregular:true, persist:true});
+           this.box.activate();
+        },//draw
+        notice: function(geom) {
+            boxNotice(geom);
+        }//notice
+    });//OpenLayers.Util.extend
+    //end add by sfb
+    
+    
+  },
    createMapControls: function() {
     var controls = [
         new OpenLayers.Control.MouseDefaults(),
@@ -351,7 +374,7 @@ iiv.Viewer.UI = new iiv.Class({
     return controls;
   },
 
-  <!-- Pete -->
+  // Pete -->
   createSearchBar: function(parent, name, title) {
       var searchBar = jQuery('<input class="'+ name +' ui-corner-all ui-state-default" name="searchBar" ID="searchBar" type="' + name + '"  title="' + title + '"/>');
 	  //var searchBar = jQuery('<input class="text" name="searchBar" id="searchBar" />');
@@ -580,7 +603,8 @@ iiv.Viewer.UI = new iiv.Class({
   },
   //Sabina polygon Toggle
    polygonToggle: function(){
-	  alert("This should draw polygon: ");
+	   //added by sfb
+	   setupPopControl();
    },
     // Pete Annotation button function.
   annotationToggle: function(){
@@ -726,6 +750,121 @@ iiv.Viewer.ImageLayer = OpenLayers.Class(OpenLayers.Layer.OpenURL, {
     return url + path;
   }
 });
+
+/**
+ * setupPopControl
+ * 
+ */
+//added by sfb
+function setupPopControl(){
+	   map.addControl(polyControl);
+	   polyControl.activate();
+	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+}
+//added by sfb
+/**
+ * onPopupClose
+ * Close the popup
+ */
+function onPopupClose(evt) {
+    // 'this' is the popup.
+	//polyControl.unselect(this.feature);
+	//alert(evt);
+    document.getElementById('iiv-image-panel').style.cursor = 'move';
+    map.removePopup(popup);
+    popup.destroy();
+    popup = null;
+    polyControl.box.clear();
+   
+    map.removeControl(polyControl);
+    //TODO:set focus back to map so selection doesn't occur again
+}
+
+/**
+ * boxNotice
+ * When the selects a polygon
+ */
+//added by sfb
+function boxNotice(geom) {
+	 document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+    var feature = new OpenLayers.Feature.Vector(geom, null, {
+        strokeColor: "#0033ff",
+        strokeOpacity: 0.7,
+        strokeWidth: 5
+    });
+    featureSelect(feature);
+    //sortOutButtons(oDragPanCtrl, false);
+}//boxNotice
+
+/**
+ *  featureSelect - show dialog for selection
+*/
+// added by sfb
+function featureSelect(feature) {
+    //need to have a minimum selection
+    if (feature.geometry.getArea() < 10)
+        return;
+    document.getElementById('iiv-image-panel').style.cursor = 'move';
+    /*
+    */
+    selectedFeature = feature;
+    var bounds = selectedFeature.geometry.getBounds();
+    
+    //leaving in for now, we may need this sfb
+    //var currZoom = map.getZoom();
+   // var canvasSize = mapcanvas;
+    //if (currZoom == ZOOMIN)
+    //    canvasSize = canvasMax;
+    //if (currZoom == ZOOMOUT)
+     //   canvasSize = canvasMin;
+
+    /*
+    alert (sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
+        parseInt(bounds.getHeight())));
+    */
+    
+    var viewerUI = this;
+    var title = "www.islandnewspapers.ca";
+    popup = new OpenLayers.Popup.FramedCloud("Region", 
+        feature.geometry.getBounds().getCenterLonLat(),
+        null,
+        "<div id='popupdiv'><form><strong>Selection from <i>" +
+        title +"</i></strong><br/>\n" +
+        "Please enter an annotation for the selected information, or<br/>\n" +
+        "close this popup if you want to make another selection.<br/><br/>" +
+        "<strong>Annotation Text:</strong><br/>" + 
+        "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
+        "<div id='saveData' align='right'"+
+        	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
+        	"<a href='#' onclick=saveAnnotation($('#annotationText').val(),$('input[name=annotationPublic]:checked').val());>Save</a>"+
+        "</div>" + 
+        "<br clear=\"left\"/>" +
+       // sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
+       // parseInt(bounds.getHeight())) +
+        "<br clear=\"left\"/>" +
+        //"<i>Coming Soon: annotate this selection!</i>" +
+        "</form></div>", 
+        null, true, onPopupClose);
+       feature.popup = popup;
+    map.addPopup(popup);
+}//featureSelect
+/**
+ * saveAnnotation
+ * 
+ */
+function saveAnnotation(annotationText,publicOn){
+	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
+	//TODO: finish save logic
+	//TODO:close popup
+	
+}
+
+
+
+
+
+
+
 
 
 
