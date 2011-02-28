@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>IIV Example</title>
+</head>
+<body>
+
+<p>example code for non-iframe embedding of viewer</p>
+
+<p>surrounding ilives page content</p>
+
+  <!-- begin iiv code -->
+    <script src="/iiv/js/OpenLayers-2.7/OpenLayers.js"></script>    
+    <script src="/iiv/js/jquery-1.3.2.min.js"></script>
+    <script src="/iiv/js/jquery-ui-1.7.2.custom.min.js"></script>
+    <script src="/iiv/js/iiv.js"></script>
+    <script>
+    document.write('<div class="iiv"></div>');
+    $(document).ready(function() {
+      var viewer = new iiv.Viewer({
+        pid: 'ilives:253974',
+        cmodel: 'ilives:bookCModel',
+        dsid: 'JP2',
+        uid: 'ZmVkb3JhQWRtaW46ZWJhYTA0ODg4ZGM5Njc3MDM0YTNjNDBiMTJmMzQ2MzA='})  
+    });
+    </script>
+  <!-- end iiv code -->
+
+<p>surrounding ilives page content</p>
+</body>
+</html>
