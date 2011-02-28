@@ -27,6 +27,14 @@
 
 }
 
+.iiv-annotation-pane {
+    position: absolute;
+    margin: 0;
+    height: 65px;
+    border-bottom: 1px solid #ccc;
+    z-index: 200;
+}
+
 .iiv-controlset {
   position: absolute;
   width: 150px;
