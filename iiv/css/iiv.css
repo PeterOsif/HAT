@@ -201,18 +201,17 @@ button.print {
   margin-left: 209px;
 }
 
-/*HAT Project Pete*/
-input.text {
-    margin-left: 500px;
-}
-
 /*HAT Project Mark */
 button.highlight {
   margin-left: 242px;
 }
+
+button.polygon{
+    margin-left: 275px;
+}
 /*HAT Project Pete*/
-button.search{
-    margin-left: 460px;
+input.text {
+    margin-left: 500px;
 }
 
 /*Hat Project Pete*/
@@ -220,8 +219,13 @@ button.annotation{
     margin-left: 640px;
 }
 
-button.polygon{
-    margin-left: 425px;
+/*HAT Project Pete*/
+input.text {
+    margin-left: 700px;
+}
+
+button.search{
+    margin-left: 835px;
 }
 
 /* print dialog */
