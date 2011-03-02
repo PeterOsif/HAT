@@ -100,7 +100,7 @@ function unflagAnnotation(aid){
 //function to grab coordinates for text to highlight
 var coords;
 function getHighlightCoordinates(pid, query){
-    var newURL = drupalDomain + "/islandora/highlighting/" + pid + "/" + query + "/?callback=?";
+    var newURL = drupalDomain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
       
     //call query function
     $.getJSON(newURL, function (data){
@@ -111,6 +111,10 @@ function getHighlightCoordinates(pid, query){
     return coords;
 }
 
+
 function getHighlightCoordinatesCallback(retData){
-    alert('hi');
+   for(var i=0;i<retData.length;i++){
+        var obj = retData[i];
+        alert(obj.l + "," + obj.t + "," + obj.b + "," + obj.r);
+    }
 }
