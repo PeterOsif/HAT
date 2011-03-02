@@ -9,7 +9,7 @@ function iiv_highlighting_menu() {
   $items['islandora/highlighting/%/%'] = array(
     'page callback' => 'iiv_highlighting_highlight',
     'page arguments' => array(2,3),
-    'access arguments' => array('highlighting'), 
+    'access arguments' => array('access content'), 
     'type' => MENU_CALLBACK,
   );
 
@@ -18,6 +18,7 @@ function iiv_highlighting_menu() {
 
 
 function iiv_highlighting_highlight($pid, $query){
+drupal_set_header($text_content_type);//print text to client
 $query_arr = array();
 //Decompose the query into single word, and store them in the query_arr array.
 $query_arr = explode(" ",$query);					
@@ -72,12 +73,13 @@ if($xmlDoc->load($coodinates_url))
 		}
 	
 	}
-	//Output is a json object. 
-	echo json_encode($result);
+
+	echo $_GET['callback'] . '(' . json_encode($result) . ')';
+	
 }
 else
 {
-	print "This PID does not exist!";
+	print "error";
 }
   
 }

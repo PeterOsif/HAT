@@ -1,4 +1,4 @@
-// 1
+
 
 var iiv = {};
 // added for popup - sfb
@@ -292,7 +292,6 @@ iiv.Viewer.UI = new iiv.Class({
     parent.append(div);
     return div;
   },
-  
 
   createUI: function() {
     var container = jQuery(this.viewer.iivContainer);
@@ -309,11 +308,9 @@ iiv.Viewer.UI = new iiv.Class({
 
     //HAT Project Pete, Create the toolbar that holds the SearchBar control, and the Search Button
     this.createSearchControls(toolbar);
-    
-    //HAT Jeremy -> experimenting with annotation piece
-    var annotationPane = this.createDiv(ui, 'iiv-annotation-pane');
-    
-    this.createAnnotationPane(annotationPane);
+
+
+
 
     var canvas = this.createDiv(ui, 'iiv-canvas'); //Semicolon added Mark
     this.textPanel = this.createDiv(canvas, 'iiv-text-panel');
@@ -384,13 +381,8 @@ iiv.Viewer.UI = new iiv.Class({
 	  parent.append(searchBar);
     return searchBar;
   },
-  
-  
-  //Added by Jeremy, experimenting with annotation toolbar
-  createAnnotationPane: function(annotationPane){
-    annotationPane.append('<span>author date</span>');
-  },
-  
+
+
   createPageNumberDisplay: function(parent) {
     var container = this.createDiv(parent, 'iiv-page-number');
     this.currentPageSpan = jQuery('<span class="current">-</span>');
@@ -606,8 +598,10 @@ iiv.Viewer.UI = new iiv.Class({
   },
 
   searchToggle: function(){
-	  var testVar = document.getElementById('searchBar').value;
-	  alert("Search Event, Users search text is: " + testVar );
+	  var query = document.getElementById('searchBar').value;
+	  var pid = this.viewer.currentPid();
+
+      var coords = getHighlightCoordinates(pid, query);
   },
   //Sabina polygon Toggle
    polygonToggle: function(){
@@ -864,36 +858,5 @@ function saveAnnotation(annotationText,publicOn){
 	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
 	//TODO: finish save logic
 	//TODO:close popup
-	
+
 }
-
- /*---------------------------------------------------------------------------------------
-        drawBox: Accepts array and draws the boxes using the coordinates
-        Parameter(s): array []
-        ---------------------------------------------------------------------------------------*/       
-function drawBox(arrayPositions) 
-{  
-        OpenLayers.Console.debug("drawBox method called with Array:["+arrayPositions+"]");
-        
-        var boxes  = new OpenLayers.Layer.Vector("Boxes",{styleMap: styleMap} );  
-        
-        for (var i = 0; i < arrayPositions.length; i++) 
-        {
-            //left, bottom, right, top [LBRT]
-            bounds = new OpenLayers.Bounds(arrayPositions[0], arrayPositions[1], arrayPositions[2], arrayPositions[3]);                    
-            box = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});                     
-            boxes.addFeatures(box);                   
-        }//for
-        
-        map.addLayers([image1, boxes]);                
-}//drawBox  
-
-
-
-
-
-
-
-
-
-

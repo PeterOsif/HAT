@@ -96,3 +96,21 @@ function unflagAnnotation(aid){
 	//document.data.myData.value = "UnFlag Worked " + html;
 
 }
+
+//function to grab coordinates for text to highlight
+var coords;
+function getHighlightCoordinates(pid, query){
+    var newURL = drupalDomain + "/islandora/highlighting/" + pid + "/" + query + "/?callback=?";
+      
+    //call query function
+    $.getJSON(newURL, function (data){
+                        getHighlightCoordinatesCallback(data);
+                        //alert(data);
+                      });
+		 
+    return coords;
+}
+
+function getHighlightCoordinatesCallback(retData){
+    alert('hi');
+}

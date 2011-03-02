@@ -15,9 +15,10 @@
     <script src="/iiv/js/jquery-1.3.2.min.js"></script>
     <script src="/iiv/js/jquery-ui-1.7.2.custom.min.js"></script>
     <script src="/iiv/js/iiv.js"></script>
-    <script src="/iiv/js/poly.js"></script>
+    <script src="/iiv/js/iivutil.js"</script>
+    <script src="/iiv/js/drawing_func.js"></script>
     <script>
-
+    var drupalDomain = "http://islandora.com";
     document.write('<div class="iiv"></div>');
     $(document).ready(function() {
       var viewer = new iiv.Viewer({
