@@ -881,7 +881,10 @@ function drawBox(obj){
                 
          
 	//left, bottom, right, top [LBRT]
-	bounds = new OpenLayers.Bounds(obj.l, obj.b, obj.r, obj.t);                    
+	//data is given inverted
+	var mapHeight = this.map.maxExtent.top;
+	
+	bounds = new OpenLayers.Bounds(obj.l, (mapHeight - obj.t), obj.r, (mapHeight - obj.b));                    
 	box = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});                     
 	boxes.addFeatures(box);                   
                             
