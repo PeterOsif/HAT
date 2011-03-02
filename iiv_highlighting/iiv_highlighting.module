@@ -31,21 +31,44 @@ if($xmlDoc->load($coodinates_url))
 	//Get each subtree of single line.
 	$element = $root->getElementsByTagName('par');
 	$result = array();
-	
+	$global = 0;
 	foreach($element as $new)
 	{
 		$child = $new->childNodes;
 		for($i=0;$i<$child->length;$i++)
 		{
+			if(count($query_arr) == 1)
+			{
+				$OK = false;
+				if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
+				{
+				 	$OK = true;
+				}
+				if(strcasecmp($query_arr[0].',',$child->item($i)->firstChild->nodeValue) == 0)
+				{
+					$OK = true;
+				}
+				if(strcasecmp($query_arr[0].'.',$child->item($i)->firstChild->nodeValue) == 0)
+				{
+					$OK = true;
+				}
+				if($OK)
+				{
+					$global ++;
+					watchdog('test',$global);
+					$temp = array('l'=>$child->item($i)->getAttribute('l'),'t'=>$child->item($i)->getAttribute('t'),'r'=>$child->item($i)->getAttribute('r'),'b'=>$child->item($i)->getAttribute('b'));
+						array_push($result,$temp);
+				}	
+			}
 			// find the word in the coordinate file which is the same as the first key word.
-			if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
+			else if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
 			{
 				$count = $i;
 				$j = 1;
 				$OK = true;
 				
 				//check if the order and the position of key words are the same as the words in the coordinate file.
-				while($j<count($query_arr)&&$OK)
+				while($j<count($query_arr)-1&&$OK)
 				{
 					$count += 2;
 					if($count<$child->length)
@@ -57,6 +80,20 @@ if($xmlDoc->load($coodinates_url))
 					}
 					$j++;	
 				}
+				$j = count($query_arr)-1;
+				$count += 2;
+				if($count<$child->length)
+				{
+					if(strncasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue,strlen($query_arr[$j])-1) != 0)
+					{
+							$OK = false;
+					}
+					if(strlen($query_arr[$j])*2 < strlen($child->item($count)->firstChild->nodeValue))
+					{
+							$OK = false;
+					}					
+				}
+				
 				if($OK)
 				{
 					//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
@@ -81,5 +118,6 @@ else
 }
   
 }
+
 
 
