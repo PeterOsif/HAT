@@ -45,22 +45,25 @@ function deleteAnnotation(aid){
 }
 
 // function to add annotations, call module to insert in the drupal database
-function addAnnotation(pid,uid,annotationText,annotationLocation,private){
+function addAnnotation(pid,annotationText,annotationLocation,private){
 	//http://192.168.56.101/islandora/annotation/insert/abc123/highthere/x=1,y=2,d=2,d1=2/1
 	//var baseURL="http://192.168.56.101/islandora/annotation/insert";
 	//messages success/error
-	var baseURL="/islandora/annotation/insert";
 	
-	// call query function 
-	var newURL = baseURL +'/'+ pid +'/' + annotationText  + '/' +  annotationLocation +'/' + private;
-	//alert(newURL);	
-	var html = $.ajax({
-	  url: newURL,
-	  async: false
-	 }).responseText;
-	console.log(html);
-	updateStatusOnPage(html); 
-	
+	var newURL = drupalDomain + "/islandora/annotation/insert/";
+	newURL += pid +'/' + annotationText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
+      
+    //call query function
+    $.getJSON(newURL, function (data){
+                        addAnnotationCallback(data);
+                        //alert(data);
+                      });
+}
+function addAnnotationCallback(data){
+    for(i=0; i< data.length; i++){
+        var obj = data[i];
+        alert(obj.message);
+    }
 }
 //function to select annotations, calls module to select the drupal database
 function flagAnnotation(aid){

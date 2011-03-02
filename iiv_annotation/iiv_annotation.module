@@ -142,7 +142,15 @@ function iiv_annotation_insert($pid, $text, $location, $public){
 	
 	//print result to output, let the client know its plain text
 	drupal_set_header($text_content_type);
-	$result == 1 ? print "success" : print "error";
+	
+	$message = ($result == 1 ? "success" : "error");
+	
+	if (array_key_exists('callback', $_GET)){
+	   echo $_GET['callback'] . '([{"message":"' . $message . '"}])';
+	}
+	else{
+	   echo "no callback specified";
+	}
   } 
 }
 
@@ -167,7 +175,14 @@ function iiv_annotation_delete($aid, $op){
   //$op is specified in the request to state whether to return plain text of to navigate back to flag admin page
   if($op == 'json'){
   	drupal_set_header($text_content_type);//print text to client
-    $result ? print "success" : print "error";
+    $message = ($result == 1 ? "success" : "error");
+	
+	if (array_key_exists('callback', $_GET)){
+	   echo $_GET['callback'] . '([{"message":"' . $message . '"}])';
+	}
+	else{
+	   echo "no callback specified";
+	}
   }
   elseif($op == 'admin'){
 	$result ? drupal_set_message(t('annotation has been deleted')) : drupal_set_message(t('error deleting annotation'));
@@ -284,7 +299,12 @@ if($xmlDoc->load($coodinates_url))
 	
 	}
 
-	echo $_GET['callback'] . '(' . json_encode($result) . ')';
+	if (array_key_exists('callback', $_GET)){
+	   echo $_GET['callback'] . '(' . json_encode($result) . ')';
+	}
+	else{
+	   echo "no callback specified";
+	}
 	
 }
 else

@@ -1,4 +1,4 @@
-
+// 1
 
 var iiv = {};
 // added for popup - sfb
@@ -100,11 +100,10 @@ iiv.Viewer = new iiv.Class({
             boxNotice(geom);
         }//notice
     });//OpenLayers.Util.extend
-    //end add by sfb
+    //end add by sfb         
+ },    
     
-    
-  },
-   createMapControls: function() {
+    createMapControls: function() {
     var controls = [
         new OpenLayers.Control.MouseDefaults(),
         new OpenLayers.Control.KeyboardDefaults()
@@ -257,7 +256,9 @@ iiv.Viewer = new iiv.Class({
     var printUrl = '/iiv/print.html?pid=' + this.currentPid() + '&image=' + escape(imageUrl);
 
     return printUrl;
-  }
+  },
+  
+  
 });
 
 
@@ -593,15 +594,16 @@ iiv.Viewer.UI = new iiv.Class({
 
   highlightToggle: function(){
   	  console.log("here is the code to highlight");
-  	 // draw();
+  	   //draw();
 
   },
 
   searchToggle: function(){
-	  var query = document.getElementById('searchBar').value;
-	  var pid = this.viewer.currentPid();
-
-      var coords = getHighlightCoordinates(pid, query);
+  	  var pid = this.viewer.currentPid();
+  	  var query = this.viewer.ui.SearchBar[0].value;
+  	  
+  	  getHighlightCoordinates(pid, query);
+	  
   },
   //Sabina polygon Toggle
    polygonToggle: function(){
@@ -752,7 +754,14 @@ iiv.Viewer.ImageLayer = OpenLayers.Class(OpenLayers.Layer.OpenURL, {
     return url + path;
   }
 });
-
+//added sab
+/*
+function setupHighlightControl(){
+	   map.addControl(highlightControl);
+	   highlightControl.activate();
+	   //document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+}
+*/
 /**
  * setupPopControl
  * 
@@ -854,9 +863,33 @@ function featureSelect(feature) {
  * saveAnnotation
  * 
  */
+ 
 function saveAnnotation(annotationText,publicOn){
 	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
 	//TODO: finish save logic
 	//TODO:close popup
-
+	
 }
+
+//sab
+function drawBox(arrayPositions){
+        	OpenLayers.Console.debug("drawBox method called with Array:["+arrayPositions+"]");               
+         var boxes  = new OpenLayers.Layer.Vector("Boxes",{styleMap: styleMap} );  
+                
+         for (var i = 0; i < arrayPositions.length; i++) {
+	    //left, bottom, right, top [LBRT]
+	    bounds = new OpenLayers.Bounds(arrayPositions[0], arrayPositions[1], arrayPositions[2], arrayPositions[3]);                    
+	    box = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});                     
+	    boxes.addFeatures(box);                   
+             }//for                
+             this.map.addLayers([boxes]); 
+}//drawBox	   
+     
+
+
+
+
+
+
+
+
