@@ -116,6 +116,10 @@ function getHighlightCoordinates(pid, query){
 
 
 function getHighlightCoordinatesCallback(retData){
+   //first clear all boxes
+   clearHighlightLayer();
+   
+   //draw results
    for(var i=0;i<retData.length;i++){
         var obj = retData[i];
         drawBox(obj);

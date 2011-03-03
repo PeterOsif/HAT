@@ -205,10 +205,12 @@ iiv.Viewer = new iiv.Class({
 
   //move forward/backwards in page numbers - MR
   nextPid: function() {
+    clearHighlightLayer();
     this.setPage(this.pageIndex + 1);
   },
 
   previousPid: function() {
+    clearHighlightLayer();
     this.setPage(this.pageIndex - 1);
   },
 
@@ -872,24 +874,48 @@ function saveAnnotation(annotationText,publicOn){
 }
 
 function drawBox(obj){
-        	var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
-        {fillColor: "yellow", fillOpacity: 0.1, strokeColor: "green"},
+    var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
+        {fillColor: "yellow", fillOpacity: 0.3, strokeColor: "green"},
         OpenLayers.Feature.Vector.style["default"]));
-        	
-	OpenLayers.Console.debug("drawBox method called with object:["+obj.t+"]");               
-         var boxes  = new OpenLayers.Layer.Vector("Boxes",{styleMap: styleMap} );  
+
                 
-         
-	//left, bottom, right, top [LBRT]
-	//data is given inverted
-	var mapHeight = this.map.maxExtent.top;
+	// y coordinates in the words XY start at 0 from the top where as
+	// open layers consideres 0 the bottom.  Take the complement of the
+	// given y value relative to the map height to invert the value. Note that in the Bounds function
+	// the top value of the words xy data is passed to the bottom parameter in the function
+	// because of this inversion.
 	
-	bounds = new OpenLayers.Bounds(obj.l, (mapHeight - obj.t), obj.r, (mapHeight - obj.b));                    
-	box = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});                     
-	boxes.addFeatures(box);                   
+	var mapHeight = this.map.maxExtent.top;
+	bounds = new OpenLayers.Bounds(obj.l, (mapHeight - obj.t), obj.r, (mapHeight - obj.b));
+	                    
+	hightlightBox = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});
+	
+	var highlightLayer = getHighlightLayer();                     
+	highlightLayer.addFeatures(hightlightBox);                   
                             
-             this.map.addLayers([boxes]); 
-}//drawBox	   
+}//drawBox
+
+function getHighlightLayer(){
+    var highlightLayer = this.map.getLayersByName("highlightLayer");
+    if(highlightLayer.length > 0){
+        return highlightLayer[0];
+    }
+    else{
+        var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
+        {fillColor: "yellow", fillOpacity: 0.3, strokeColor: "green"},
+        OpenLayers.Feature.Vector.style["default"]));
+        
+        highlightLayer = new OpenLayers.Layer.Vector("highlightLayer", {styleMap : styleMap});
+        this.map.addLayers([highlightLayer]);
+        return highlightLayer;
+    }
+}
+
+function clearHighlightLayer(){
+    getHighlightLayer().destroyFeatures();
+}
+
+	   
      
 
 
