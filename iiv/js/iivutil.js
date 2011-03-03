@@ -118,6 +118,6 @@ function getHighlightCoordinates(pid, query){
 function getHighlightCoordinatesCallback(retData){
    for(var i=0;i<retData.length;i++){
         var obj = retData[i];
-        alert(obj.l + "," + obj.t + "," + obj.b + "," + obj.r);
+        drawBox(obj);
     }
 }

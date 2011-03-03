@@ -100,7 +100,7 @@ iiv.Viewer = new iiv.Class({
             boxNotice(geom);
         }//notice
     });//OpenLayers.Util.extend
-    //end add by sfb         
+    //end add by sfb  
  },    
     
     createMapControls: function() {
@@ -871,20 +871,25 @@ function saveAnnotation(annotationText,publicOn){
 	
 }
 
-//sab
-function drawBox(arrayPositions){
-        	OpenLayers.Console.debug("drawBox method called with Array:["+arrayPositions+"]");               
+function drawBox(obj){
+        	var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
+        {fillColor: "yellow", fillOpacity: 0.1, strokeColor: "green"},
+        OpenLayers.Feature.Vector.style["default"]));
+        	
+	OpenLayers.Console.debug("drawBox method called with object:["+obj.t+"]");               
          var boxes  = new OpenLayers.Layer.Vector("Boxes",{styleMap: styleMap} );  
                 
-         for (var i = 0; i < arrayPositions.length; i++) {
-	    //left, bottom, right, top [LBRT]
-	    bounds = new OpenLayers.Bounds(arrayPositions[0], arrayPositions[1], arrayPositions[2], arrayPositions[3]);                    
-	    box = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});                     
-	    boxes.addFeatures(box);                   
-             }//for                
+         
+	//left, bottom, right, top [LBRT]
+	bounds = new OpenLayers.Bounds(obj.l, obj.b, obj.r, obj.t);                    
+	box = new OpenLayers.Feature.Vector(bounds.toGeometry(),{styleMap: styleMap});                     
+	boxes.addFeatures(box);                   
+                            
              this.map.addLayers([boxes]); 
 }//drawBox	   
      
+
+
 
 
 

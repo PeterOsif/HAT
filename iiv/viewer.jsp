@@ -18,7 +18,7 @@
     <script src="/iiv/js/iivutil.js"</script>
     <script src="/iiv/js/drawing_func.js"></script>
     <script>
-    var drupalDomain = "http://islandora.com";
+    var drupalDomain = "http://192.168.56.101";
     document.write('<div class="iiv"></div>');
     $(document).ready(function() {
       var viewer = new iiv.Viewer({
