@@ -109,22 +109,20 @@ function iiv_annotation_select($pid){
   global $user;
   $select_query = "SELECT * FROM {annotations} WHERE (public = 1 OR uid = %d) AND pid = '%s'";
   $result = db_query($select_query, $user->uid, $pid);
-  $output = array();
-  $count = 0;
-  //load the include file
-  module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_utility');
+  
+  $sanitized_results = array();
   while($row = db_fetch_array($result)){
-	
 	//sanatize the output of annotation_text, as it is user entered text
 	$row['annotation_text'] = check_plain($row['annotation_text']);
 	
 	//convert the row to JSON and add it to the output array
-    $output[$count] = _iiv_annotation_array2json($row);
-    $count++;	
+    array_push($sanitized_results,$row);
   }
+  
   drupal_set_header($text_content_type);//print text to client
+  
   //print all output elements as list of JSON objects
-  print implode(",", $output);
+  echo _iiv_annotation_get_jsonp_callback(json_encode($sanitized_results));
 }
 
 /*
@@ -145,12 +143,7 @@ function iiv_annotation_insert($pid, $text, $location, $public){
 	
 	$message = ($result == 1 ? "success" : "error");
 	
-	if (array_key_exists('callback', $_GET)){
-	   echo $_GET['callback'] . '([{"message":"' . $message . '"}])';
-	}
-	else{
-	   echo "no callback specified";
-	}
+	echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
   } 
 }
 
@@ -177,18 +170,117 @@ function iiv_annotation_delete($aid, $op){
   	drupal_set_header($text_content_type);//print text to client
     $message = ($result == 1 ? "success" : "error");
 	
-	if (array_key_exists('callback', $_GET)){
-	   echo $_GET['callback'] . '([{"message":"' . $message . '"}])';
-	}
-	else{
-	   echo "no callback specified";
-	}
+	echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
   }
   elseif($op == 'admin'){
 	$result ? drupal_set_message(t('annotation has been deleted')) : drupal_set_message(t('error deleting annotation'));
 	drupal_goto('admin/settings/iiv_annotation_flag');
   }
   
+}
+
+//Returns JSON data of a given query
+function iiv_annotation_highlight($pid, $query){
+    drupal_set_header($text_content_type);//print text to client
+    $query_arr = array();
+    //Decompose the query into single word, and store them in the query_arr array.
+    $query_arr = explode(" ",$query);					
+    //Generate the coodinates file url.
+    $host = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
+    $coodinates_url = $host.'/objects/'.$pid.'/datastreams/WORDSXY/content';
+    $xmlDoc = new DOMDocument();
+    if($xmlDoc->load($coodinates_url))
+    {
+    	$root = $xmlDoc -> documentElement;
+    	//Get each subtree of single line.
+    	$element = $root->getElementsByTagName('par');
+    	$result = array();
+    	$global = 0;
+    	foreach($element as $new)
+    	{
+    		$child = $new->childNodes;
+    		for($i=0;$i<$child->length;$i++)
+    		{
+    			if(count($query_arr) == 1)
+    			{
+    				$OK = false;
+    				if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
+    				{
+    				 	$OK = true;
+    				}
+    				if(strcasecmp($query_arr[0].',',$child->item($i)->firstChild->nodeValue) == 0)
+    				{
+    					$OK = true;
+    				}
+    				if(strcasecmp($query_arr[0].'.',$child->item($i)->firstChild->nodeValue) == 0)
+    				{
+    					$OK = true;
+    				}
+    				if($OK)
+    				{
+    					$global ++;
+    					watchdog('test',$global);
+    					$temp = array('l'=>$child->item($i)->getAttribute('l'),'t'=>$child->item($i)->getAttribute('t'),'r'=>$child->item($i)->getAttribute('r'),'b'=>$child->item($i)->getAttribute('b'));
+    						array_push($result,$temp);
+    				}	
+    			}
+    			// find the word in the coordinate file which is the same as the first key word.
+    			else if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
+    			{
+    				$count = $i;
+    				$j = 1;
+    				$OK = true;
+    				
+    				//check if the order and the position of key words are the same as the words in the coordinate file.
+    				while($j<count($query_arr)-1&&$OK)
+    				{
+    					$count += 2;
+    					if($count<$child->length)
+    					{
+    						if(strcasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue) !=0)
+    						{
+    							$OK = false;
+    						}
+    					}
+    					$j++;	
+    				}
+    				$j = count($query_arr)-1;
+    				$count += 2;
+    				if($count<$child->length)
+    				{
+    					if(strncasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue,strlen($query_arr[$j])-1) != 0)
+    					{
+    							$OK = false;
+    					}
+    					if(strlen($query_arr[$j])*2 < strlen($child->item($count)->firstChild->nodeValue))
+    					{
+    							$OK = false;
+    					}					
+    				}
+    				
+    				if($OK)
+    				{
+    					//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
+    					for($k=0;$k<count($query_arr);$k++)
+    					{
+    						$number = $i+2*$k;
+    						$temp = array('l'=>$child->item($number)->getAttribute('l'),'t'=>$child->item($number)->getAttribute('t'),'r'=>$child->item($number)->getAttribute('r'),'b'=>$child->item($number)->getAttribute('b'));
+    						array_push($result,$temp);
+    				
+    					}
+    				}
+    			}
+    		}
+    	
+    	}
+    
+        echo _iiv_annotation_get_jsonp_callback(json_encode($result));
+    	
+    }
+    else
+    {
+        echo _iiv_annotation_json_message("error loading document");
+    }
 }
 
 /*
@@ -203,113 +295,39 @@ function _iiv_annotation_user_owns_annotation($aid){
   return $result['uid'] == $user->uid;
 }
 
+/*
+Return: string
+Description: builds a JSONP JavaScript callback for cross domain ajax requests
+@param $callback: callback supplied by the JSONP request
+@param $data: JSON data
+*/
+function _iiv_annotation_get_jsonp_callback($data){
+    if (!array_key_exists('callback', $_GET)){
+        return _iiv_annotation_json_message("no callback");
+    }
+    else if(!$data){
+        return _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message("empty data set"));
+    }
+    else{
+        return $_GET['callback'] . '(' . $data . ')';
+    }
+}
 
-//Returns JSON data of a given query
-function iiv_annotation_highlight($pid, $query){
-drupal_set_header($text_content_type);//print text to client
-$query_arr = array();
-//Decompose the query into single word, and store them in the query_arr array.
-$query_arr = explode(" ",$query);					
-//Generate the coodinates file url.
-$host = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
-$coodinates_url = $host.'/objects/'.$pid.'/datastreams/WORDSXY/content';
-$xmlDoc = new DOMDocument();
-if($xmlDoc->load($coodinates_url))
-{
-	$root = $xmlDoc -> documentElement;
-	//Get each subtree of single line.
-	$element = $root->getElementsByTagName('par');
-	$result = array();
-	$global = 0;
-	foreach($element as $new)
-	{
-		$child = $new->childNodes;
-		for($i=0;$i<$child->length;$i++)
-		{
-			if(count($query_arr) == 1)
-			{
-				$OK = false;
-				if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
-				{
-				 	$OK = true;
-				}
-				if(strcasecmp($query_arr[0].',',$child->item($i)->firstChild->nodeValue) == 0)
-				{
-					$OK = true;
-				}
-				if(strcasecmp($query_arr[0].'.',$child->item($i)->firstChild->nodeValue) == 0)
-				{
-					$OK = true;
-				}
-				if($OK)
-				{
-					$global ++;
-					watchdog('test',$global);
-					$temp = array('l'=>$child->item($i)->getAttribute('l'),'t'=>$child->item($i)->getAttribute('t'),'r'=>$child->item($i)->getAttribute('r'),'b'=>$child->item($i)->getAttribute('b'));
-						array_push($result,$temp);
-				}	
-			}
-			// find the word in the coordinate file which is the same as the first key word.
-			else if(strcasecmp($query_arr[0],$child->item($i)->firstChild->nodeValue) == 0)
-			{
-				$count = $i;
-				$j = 1;
-				$OK = true;
-				
-				//check if the order and the position of key words are the same as the words in the coordinate file.
-				while($j<count($query_arr)-1&&$OK)
-				{
-					$count += 2;
-					if($count<$child->length)
-					{
-						if(strcasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue) !=0)
-						{
-							$OK = false;
-						}
-					}
-					$j++;	
-				}
-				$j = count($query_arr)-1;
-				$count += 2;
-				if($count<$child->length)
-				{
-					if(strncasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue,strlen($query_arr[$j])-1) != 0)
-					{
-							$OK = false;
-					}
-					if(strlen($query_arr[$j])*2 < strlen($child->item($count)->firstChild->nodeValue))
-					{
-							$OK = false;
-					}					
-				}
-				
-				if($OK)
-				{
-					//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
-					for($k=0;$k<count($query_arr);$k++)
-					{
-						$number = $i+2*$k;
-						$temp = array('l'=>$child->item($number)->getAttribute('l'),'t'=>$child->item($number)->getAttribute('t'),'r'=>$child->item($number)->getAttribute('r'),'b'=>$child->item($number)->getAttribute('b'));
-						array_push($result,$temp);
-				
-					}
-				}
-			}
-		}
-	
-	}
 
-	if (array_key_exists('callback', $_GET)){
-	   echo $_GET['callback'] . '(' . json_encode($result) . ')';
-	}
-	else{
-	   echo "no callback specified";
-	}
-	
+/*
+Return: string
+Description: creates JSON for a given message {"message":"value"} 
+*/
+function _iiv_annotation_json_message($message){
+    $message_arr = array('message' => $message);
+    return json_encode($message_arr);
 }
-else
-{
-	print "error";
-}
-  
-}
+
+
+
+
+
+
+
+
+

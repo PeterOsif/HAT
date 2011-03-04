@@ -15,7 +15,10 @@ function iiv_annotation_flag($aid){
   if(!_iiv_annotation_user_flagged($aid,$ruid) && _iiv_annotation_exists($aid)){
     $result = db_query($flag_insert,$aid,$ruid,$ip,time());
   }
-  $result == 1 ? print "success" : print "error";
+  $message;
+  $result == 1 ? $message = "success" : $message = "error";
+  
+  echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
 }
 
 /*
@@ -43,13 +46,9 @@ function iiv_annotation_unflag($aid){
   else{
 	$result = db_query($logged_out_delete,$aid, $_SERVER['REMOTE_ADDR']);
   }
-  if($result){
-  	iiv_annotation_delete_flags($aid);
-    print "success";
-  }
-  else{
-	print "error";
-  }
+  $message = $result ? "success" : "error";
+  echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
+
 }
 
 /*
