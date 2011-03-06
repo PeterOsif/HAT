@@ -101,8 +101,25 @@ iiv.Viewer = new iiv.Class({
         }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
- },    
     
+    //sabina 
+    mulpolyControl = new OpenLayers.Control(this.map);
+    vectors = new OpenLayers.Layer.Vector("Polygon Layer");
+    map.addLayers([imageLayer, vectors]);
+    OpenLayers.Util.extend(mulpolyControl, {
+       draw: function() {       	 
+         this.poly = new OpenLayers.Handler.Polygon(mulpolyControl,
+         {"done": this.notice}, {sides:7, irregular:true, persist:true});
+         this.poly.activate();            
+      },//gives user the control to draw polygon     
+      
+       notice: function(geom) {
+          // boxNotice(geom);
+             alert(geom);
+        }//notice
+    });//OpenLayers.Util.extend
+    
+ },    
     createMapControls: function() {
     var controls = [
         new OpenLayers.Control.MouseDefaults(),
@@ -279,7 +296,7 @@ iiv.Viewer.UI = new iiv.Class({
   textPanel: null,
   textContainer: null,
   buttonPrint: null,
-
+  buttonMultiPolygon:null,
 
   buttonHighlight: null,
   buttonPolygon:null,
@@ -363,6 +380,7 @@ iiv.Viewer.UI = new iiv.Class({
     this.buttonHighlight = this.createButton(controls, 'highlight', 'Highlight Text', 'ui-icon-pencil');
     //Sabina
     this.buttonPolygon = this.createButton(controls, 'polygon', 'Draw Polygon', 'ui-icon-arrow-2-se-nw');
+	this.buttonMultiPolygon = this.createButton(controls, 'poly', 'Draw Multipoint Polygon', 'ui-icon-triangle-1-ne');
     return controls;
   },
 
@@ -520,7 +538,10 @@ iiv.Viewer.UI = new iiv.Class({
       viewerUI.buttonPolygon.click(function() {
     	viewerUI.polygonToggle();
       });
-
+    //Sabina polygon button click, call polygonToggle method
+      viewerUI.buttonMultiPolygon.click(function() {
+    	viewerUI.multipolygonToggle();
+      });
       // Pete, function for annotation button.
     viewerUI.buttonAnnotation.click(function() {
          viewerUI.annotationToggle();
@@ -611,6 +632,12 @@ iiv.Viewer.UI = new iiv.Class({
    polygonToggle: function(){
 	   //added by sfb
 	   setupPopControl();
+   },
+   //sabina
+   multipolygonToggle: function(){
+	    //alert("this draws the polygon");
+	    setupPopControlforPolygon();
+	    
    },
     // Pete Annotation button function.
   annotationToggle: function(){
@@ -756,14 +783,6 @@ iiv.Viewer.ImageLayer = OpenLayers.Class(OpenLayers.Layer.OpenURL, {
     return url + path;
   }
 });
-//added sab
-/*
-function setupHighlightControl(){
-	   map.addControl(highlightControl);
-	   highlightControl.activate();
-	   //document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
-}
-*/
 /**
  * setupPopControl
  * 
@@ -772,6 +791,13 @@ function setupHighlightControl(){
 function setupPopControl(){
 	   map.addControl(polyControl);
 	   polyControl.activate();
+	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+}
+//Sabina
+//sab
+function setupPopControlforPolygon(){	   
+	   map.addControl(mulpolyControl);
+	   mulpolyControl.activate();	 
 	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
 }
 //added by sfb

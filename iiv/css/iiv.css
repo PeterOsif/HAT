@@ -213,9 +213,13 @@ button.print {
 button.highlight {
   margin-left: 242px;
 }
-
+/*Sab*/
 button.polygon{
     margin-left: 275px;
+}
+/*Sab*/
+button.poly{
+    margin-left: 310px;
 }
 /*HAT Project Pete*/
 input.text {
