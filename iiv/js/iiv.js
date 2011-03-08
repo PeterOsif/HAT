@@ -17,8 +17,6 @@ iiv.Class = function(prototype) {
 };
 
 
-
-
 iiv.Viewer = new iiv.Class({
   ui: null,
   iivContainer: '.iiv',
@@ -98,6 +96,7 @@ iiv.Viewer = new iiv.Class({
         },//draw
         notice: function(geom) {
             boxNotice(geom);
+			drawPolygon(geom);//added by sabina
         }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
@@ -114,8 +113,11 @@ iiv.Viewer = new iiv.Class({
       },//gives user the control to draw polygon     
       
        notice: function(geom) {
-          // boxNotice(geom);
-             alert(geom);
+           //redraw polygon to test if the coordinates received draw correct
+           alert(geom); //Show alert box with coordinates
+           //clearPolygonLayer();
+           drawPolygon(geom);
+           boxNotice(geom);     
         }//notice
     });//OpenLayers.Util.extend
     
@@ -380,7 +382,7 @@ iiv.Viewer.UI = new iiv.Class({
     this.buttonHighlight = this.createButton(controls, 'highlight', 'Highlight Text', 'ui-icon-pencil');
     //Sabina
     this.buttonPolygon = this.createButton(controls, 'polygon', 'Draw Polygon', 'ui-icon-arrow-2-se-nw');
-	this.buttonMultiPolygon = this.createButton(controls, 'poly', 'Draw Multipoint Polygon', 'ui-icon-triangle-1-ne');
+	this.buttonMultiPolygon = this.createButton(controls, 'poly', 'Draw Multipoint Polygon', 'ui-icon-comment');
     return controls;
   },
 
@@ -794,7 +796,6 @@ function setupPopControl(){
 	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
 }
 //Sabina
-//sab
 function setupPopControlforPolygon(){	   
 	   map.addControl(mulpolyControl);
 	   mulpolyControl.activate();	 
@@ -834,6 +835,24 @@ function boxNotice(geom) {
     featureSelect(feature);
     //sortOutButtons(oDragPanCtrl, false);
 }//boxNotice
+
+//Sabina
+function drawPolygon(geom)
+{
+    //Define Layer 
+    var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {});		
+    var polygonFeature = new OpenLayers.Feature.Vector(geom, null, {
+        strokeColor: "#ff0000", //color of the line on features
+        fillColor:"green", //color used to fill polygon, default is #ee9900
+        strokeOpacity: 0.2,
+        fillOpacity:0.4, //This is the opacity used for filling in Polygons	
+        strokeWidth: 1 //default is 1
+    });  
+   map.addLayer(vectorLayer);// add it to map
+   vectorLayer.addFeatures(polygonFeature);//redraw with the polygon points we have
+}
+
+
 
 /**
  *  featureSelect - show dialog for selection
