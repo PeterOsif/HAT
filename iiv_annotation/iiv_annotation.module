@@ -323,6 +323,22 @@ function _iiv_annotation_json_message($message){
     return json_encode($message_arr);
 }
 
+/**
+ * Implementation of hook_rules_event_info().
+ * @ingroup rules
+ */
+function iiv_annotation_rules_event_info() {
+  return array(
+    'iiv_annotation_flag' => array(
+      'label' => t('An annotation is flagged'),
+      'module' => 'IIV Annotations',
+      'arguments' => array(
+        'flagging_user' => array('type' => 'user', 'label' => t('User that flags annotation')),
+      ),
+    ),
+  );
+}
+
 
 
 

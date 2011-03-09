@@ -103,7 +103,7 @@ function unflagAnnotation(aid){
 //function to grab coordinates for text to highlight
 var coords;
 function getHighlightCoordinates(pid, query){
-    var newURL = drupalDomain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
+    var newURL = drupal_domain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
       
     //call query function
     $.getJSON(newURL, function (data){

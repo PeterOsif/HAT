@@ -10,6 +10,7 @@ function iiv_annotation_flag($aid){
   global $user;
   $ruid = $user->uid;
   $ip = $_SERVER['REMOTE_ADDR'];
+  
 
   //check that the user has not already flagged this annotation, and that the annotation ID is valid
   if(!_iiv_annotation_user_flagged($aid,$ruid) && _iiv_annotation_exists($aid)){
@@ -17,6 +18,10 @@ function iiv_annotation_flag($aid){
   }
   $message;
   $result == 1 ? $message = "success" : $message = "error";
+  
+  if($result == 1){
+    rules_invoke_event('iiv_annotation_flag', $user);
+  }
   
   echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
 }

@@ -15,10 +15,10 @@
     <script src="/iiv/js/jquery-1.3.2.min.js"></script>
     <script src="/iiv/js/jquery-ui-1.7.2.custom.min.js"></script>
     <script src="/iiv/js/iiv.js"></script>
-    <script src="/iiv/js/iivutil.js"</script>
-    <script src="/iiv/js/drawing_func.js"></script>
+    <script src="/iiv/js/iivutil.js"></script>
     <script>
-    var drupalDomain = "http://192.168.56.101";
+    var drupal_uid = '${param.drupal_uid}';
+    var drupal_domain = '${param.drupal_domain}';
     document.write('<div class="iiv"></div>');
     $(document).ready(function() {
       var viewer = new iiv.Viewer({
