@@ -626,10 +626,9 @@ iiv.Viewer.UI = new iiv.Class({
   searchToggle: function(){
   	  var pid = this.viewer.currentPid();
   	  var query = this.viewer.ui.SearchBar[0].value;
-  	  
-  	  getHighlightCoordinates(pid, query);
-	  
-  },
+  	  // sfb check the search status before attempting another one
+  	   checkStatusAndSearch(pid,query);
+   },
   //Sabina polygon Toggle
    polygonToggle: function(){
 	   //added by sfb

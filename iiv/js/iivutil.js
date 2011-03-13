@@ -6,6 +6,9 @@
  * Util functions to use with iiv
  * 
  */
+var searchStatus = "";
+var alertTimerId = 0;
+
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
 	var baseURL="/islandora/annotation/select";
@@ -124,6 +127,9 @@ function getHighlightCoordinatesCallback(retData){
         var obj = retData[i];
         drawBox(obj);
     }
+   // used so search button will be disabled if a search is in progress
+   searchStatus = "done";
+   clearTimer();
 }
 /**
  * setupPopControl
@@ -298,4 +304,44 @@ function getHighlightLayer(){
 
 function clearHighlightLayer(){
     getHighlightLayer().destroyFeatures();
+}
+/**
+ * clearTimer()
+ * Used for the search option, see searchToggle() 
+ */
+function clearTimer(){
+	  // Clear the timer 
+	clearTimeout(alertTimerId);
+}
+/**
+ * checkStatusAndSearch() 
+ * Check to make sure a search is not already in progress, if not search  
+ */
+function checkStatusAndSearch(pid,query){
+	 // Is there search in progress
+	  if (searchStatus == "" || searchStatus == "done"){
+		  // the normal flow will not need this timer but this here in case a error occurs 
+		  // getting a response from the highlight search 
+		  //set a timer so the search can be run after 2 minutes
+		  var timeOut= 5000; // 5 secs
+		  //var timeOut= 120000; // 2 minutes
+		  alertTimerId = setTimeout ( "clearTimer()", timeOut );
+		  searchStatus = "in progress";
+		  // call the search
+		  getHighlightCoordinates(pid, query);
+	  }else{
+		 // Show dialog, search is already in progress
+		  $(function() {
+			 //TODO:If someone knows a better style to use fell free
+		    $("<div id='dialog' title='Search Status' class='iiv-ui'><span class='text'>Search already in progress.</span></div>").dialog({
+		      bgiframe: true,
+		      modal: true,
+		      buttons: {
+		        Ok: function() {
+		          $(this).dialog('close');
+		        }
+		      }
+		    });
+		  });
+	  }
 }
