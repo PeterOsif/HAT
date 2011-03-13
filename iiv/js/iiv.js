@@ -96,7 +96,7 @@ iiv.Viewer = new iiv.Class({
         },//draw
         notice: function(geom) {
             boxNotice(geom);
-			drawPolygon(geom);//added by sabina
+	    drawPolygon(geom);//added by sabina
         }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
@@ -114,9 +114,8 @@ iiv.Viewer = new iiv.Class({
       
        notice: function(geom) {
            //redraw polygon to test if the coordinates received draw correct
-           alert(geom); //Show alert box with coordinates
-           //clearPolygonLayer();
-           drawPolygon(geom);
+           //alert(geom); //Show alert box with coordinates
+           //drawPolygon(geom);
            boxNotice(geom);     
         }//notice
     });//OpenLayers.Util.extend

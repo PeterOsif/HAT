@@ -106,11 +106,10 @@ function getHighlightCoordinates(pid, query){
     var newURL = drupal_domain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
       
     //call query function
-    $.getJSON(newURL, function (data){
+       $.getJSON(newURL, function (data){
                         getHighlightCoordinatesCallback(data);
                         //alert(data);
-                      });
-		 
+                      }); 
     return coords;
 }
 
@@ -180,7 +179,6 @@ function boxNotice(geom) {
 function drawPolygon(geom)
 {
     //Define Layer 
-    var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {});		
     var polygonFeature = new OpenLayers.Feature.Vector(geom, null, {
         strokeColor: "#ff0000", //color of the line on features
         fillColor:"green", //color used to fill polygon, default is #ee9900
@@ -188,10 +186,29 @@ function drawPolygon(geom)
         fillOpacity:0.4, //This is the opacity used for filling in Polygons	
         strokeWidth: 1 //default is 1
     });  
-   map.addLayer(vectorLayer);// add it to map
-   vectorLayer.addFeatures(polygonFeature);//redraw with the polygon points we have
+    var annotationLayer = getAnnotationLayer();                     
+    annotationLayer.addFeatures(polygonFeature);   
+}
+  
+function getAnnotationLayer(){
+    var annotationLayer = this.map.getLayersByName("annotationLayer");
+    if(annotationLayer.length > 0){
+        return annotationLayer[0];
+    }
+    else{
+        var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
+        {fillColor: "yellow", fillOpacity: 0.3, strokeColor: "green"},
+        OpenLayers.Feature.Vector.style["default"]));
+        
+        highlightLayer = new OpenLayers.Layer.Vector("annotationLayer", {styleMap : styleMap});
+        this.map.addLayers([highlightLayer]);
+        return highlightLayer;
+    }
 }
 
+function clearAnnotationLayer(){
+    getAnnotationLayer().destroyFeatures();
+}
 
 
 /**
@@ -207,8 +224,10 @@ function featureSelect(feature) {
     */
     selectedFeature = feature;
     var bounds = selectedFeature.geometry.getBounds();
-    
-    //leaving in for now, we may need this sfb
+    //Sabina
+    var coordinates = selectedFeature.geometry;//Array
+    alert(coordinates);
+     //leaving in for now, we may need this sfb
     //var currZoom = map.getZoom();
    // var canvasSize = mapcanvas;
     //if (currZoom == ZOOMIN)
@@ -230,11 +249,12 @@ function featureSelect(feature) {
         title +"</i></strong><br/>\n" +
         "Please enter an annotation for the selected information, or<br/>\n" +
         "close this popup if you want to make another selection.<br/><br/>" +
-        "<strong>Annotation Text:</strong><br/>" + 
+        "<strong>Annotation Text:</strong><br/>" +       
         "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
-        "<div id='saveData' align='right'"+
+        "<div id='saveData' align='right'"+       
         	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
-        	"<a href='#' onclick=saveAnnotation($('#annotationText').val(),$('input[name=annotationPublic]:checked').val());>Save</a>"+
+        //	"<a href='#' onclick=saveAnnotation($('#annotationText').val(),"+coordinates+",$('input[name=annotationPublic]:checked').val());>Save</a>"+
+        "<a href='#' onclick=saveAnnotation($('#annotationText').val(),$('input[name=annotationPublic]:checked').val());>Save</a>"+
         "</div>" + 
         "<br clear=\"left\"/>" +
        // sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
@@ -253,6 +273,8 @@ function featureSelect(feature) {
  
 function saveAnnotation(annotationText,publicOn){
 	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
+	//var coordinates = selectedFeature.geometry;
+	//alert(coordinates);
 	//TODO: finish save logic
 	//TODO:close popup
 	
