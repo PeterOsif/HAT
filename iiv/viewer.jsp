@@ -19,9 +19,10 @@
     <script>
     var drupal_uid = '${param.drupal_uid}';
     var drupal_domain = '${param.drupal_domain}';
+    var viewer;
     document.write('<div class="iiv"></div>');
     $(document).ready(function() {
-      var viewer = new iiv.Viewer({
+        viewer = new iiv.Viewer({
         pid: '${param.pid}',
         cmodel: '${param.cmodel}', 
         dsid: 'JP2',

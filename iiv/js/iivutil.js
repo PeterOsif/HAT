@@ -232,7 +232,16 @@ function featureSelect(feature) {
     var bounds = selectedFeature.geometry.getBounds();
     //Sabina
     var coordinates = selectedFeature.geometry;//Array
-    alert(coordinates);
+    coordinates = coordinates.components[0].components;
+    
+    var coordsString = "";
+    for(i=0; i<coordinates.length; i++){
+        var current = coordinates[i];
+        coordsString += current.x + " ";
+        coordsString += current.y + ",";
+    }
+    coordsString = coordsString.substr(0,coordsString.length -1);
+    alert(coordsString);
      //leaving in for now, we may need this sfb
     //var currZoom = map.getZoom();
    // var canvasSize = mapcanvas;
@@ -248,6 +257,7 @@ function featureSelect(feature) {
     
     var viewerUI = this;
     var title = "www.islandnewspapers.ca";
+    var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "',$('input[name=annotationPublic]:checked').val());";
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
         null,
@@ -260,7 +270,7 @@ function featureSelect(feature) {
         "<div id='saveData' align='right'"+       
         	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
         //	"<a href='#' onclick=saveAnnotation($('#annotationText').val(),"+coordinates+",$('input[name=annotationPublic]:checked').val());>Save</a>"+
-        "<a href='#' onclick=saveAnnotation($('#annotationText').val(),$('input[name=annotationPublic]:checked').val());>Save</a>"+
+        "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
         "</div>" + 
         "<br clear=\"left\"/>" +
        // sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
@@ -277,10 +287,10 @@ function featureSelect(feature) {
  * 
  */
  
-function saveAnnotation(annotationText,publicOn){
+function saveAnnotation(annotationText,coordinates,publicOn){
 	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
 	//var coordinates = selectedFeature.geometry;
-	//alert(coordinates);
+	alert(coordinates);
 	//TODO: finish save logic
 	//TODO:close popup
 	
@@ -367,3 +377,5 @@ function checkStatusAndSearch(pid,query){
 		  });
 	  }
 }
+
+
