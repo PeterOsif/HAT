@@ -96,8 +96,7 @@ iiv.Viewer = new iiv.Class({
         },//draw
         notice: function(geom) {
             boxNotice(geom);
-	    drawPolygon(geom);//added by sabina
-        }//notice
+	    }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
     
@@ -112,10 +111,7 @@ iiv.Viewer = new iiv.Class({
          this.poly.activate();            
       },//gives user the control to draw polygon     
       
-       notice: function(geom) {
-           //redraw polygon to test if the coordinates received draw correct
-           //alert(geom); //Show alert box with coordinates
-           //drawPolygon(geom);
+       notice: function(geom) {           
            boxNotice(geom);     
         }//notice
     });//OpenLayers.Util.extend
@@ -618,7 +614,10 @@ iiv.Viewer.UI = new iiv.Class({
 
   highlightToggle: function(){
   	  console.log("here is the code to highlight");
-  	   //draw();
+  	  //temporary- drawPolygon method call
+ 	   drawPolygon("Sample text","5936 9511,7200 8919,6528 8327,5696 8743,5936 9511");
+          drawPolygon("Sample text 1","1600 7479,1600 8567,3632 8567,3632.0000000000005 7479,1600 7479");  
+          drawPolygon("Annotation Text","2176 8087,3456 8103,4304 7303,4160 6711,3504 6743,2448 6967,3312 7335,2176 8087");  
 
   },
 

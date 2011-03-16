@@ -182,18 +182,26 @@ function boxNotice(geom) {
 }//boxNotice
 
 //Sabina
-function drawPolygon(geom)
+function drawPolygon(annotationText,geom)
 {
-    //Define Layer 
-    var polygonFeature = new OpenLayers.Feature.Vector(geom, null, {
-        strokeColor: "#ff0000", //color of the line on features
-        fillColor:"green", //color used to fill polygon, default is #ee9900
-        strokeOpacity: 0.2,
-        fillOpacity:0.4, //This is the opacity used for filling in Polygons	
-        strokeWidth: 1 //default is 1
-    });  
-    var annotationLayer = getAnnotationLayer();                     
-    annotationLayer.addFeatures(polygonFeature);   
+   var pointList = [];
+   var splitPixels=geom.split(",");
+   console.log(splitPixels);   
+   for(var i = 0; i < splitPixels.length; i++){
+   	   var splitXY=splitPixels[i].split(" ");    	   
+   	   var x=(parseInt(splitXY[0]));
+   	   var y=(parseInt(splitXY[1]));	   
+   	   console.log("Point"+i+" X="+x+" Y="+y);
+   	   var aPoint = new OpenLayers.Geometry.Point(x,y);
+       pointList.push(aPoint);
+   }
+	console.log(pointList);
+	// create a polygon feature from a list of points
+	var linearRing = new OpenLayers.Geometry.LinearRing(pointList);     
+	var polygonFeature = new OpenLayers.Feature.Vector(linearRing, null); 
+	var annotationLayer = getAnnotationLayer();                     
+	annotationLayer.addFeatures([polygonFeature]);      
+	//alert(annotationLayer.getVisibility());      
 }
   
 function getAnnotationLayer(){
@@ -228,20 +236,17 @@ function featureSelect(feature) {
     document.getElementById('iiv-image-panel').style.cursor = 'move';
     /*
     */
-    selectedFeature = feature;
+     selectedFeature = feature;
     var bounds = selectedFeature.geometry.getBounds();
-    //Sabina
-    var coordinates = selectedFeature.geometry;//Array
-    coordinates = coordinates.components[0].components;
-    
+    var coordinates = selectedFeature.geometry;
+    coordinates = coordinates.components[0].components;    
     var coordsString = "";
     for(i=0; i<coordinates.length; i++){
         var current = coordinates[i];
         coordsString += current.x + " ";
         coordsString += current.y + ",";
     }
-    coordsString = coordsString.substr(0,coordsString.length -1);
-    alert(coordsString);
+    coordsString = coordsString.substr(0,coordsString.length -1);  
      //leaving in for now, we may need this sfb
     //var currZoom = map.getZoom();
    // var canvasSize = mapcanvas;
@@ -269,7 +274,6 @@ function featureSelect(feature) {
         "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
         "<div id='saveData' align='right'"+       
         	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
-        //	"<a href='#' onclick=saveAnnotation($('#annotationText').val(),"+coordinates+",$('input[name=annotationPublic]:checked').val());>Save</a>"+
         "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
         "</div>" + 
         "<br clear=\"left\"/>" +
@@ -287,13 +291,11 @@ function featureSelect(feature) {
  * 
  */
  
-function saveAnnotation(annotationText,coordinates,publicOn){
-	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
-	//var coordinates = selectedFeature.geometry;
-	alert(coordinates);
-	//TODO: finish save logic
-	//TODO:close popup
-	
+function saveAnnotation(annotationText,publicOn){
+	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
+	//alert(coordinates);	
+	var pid=viewer.currentPid();	
+	addAnnotation(pid,annotationText,coordinates,publicOn);	
 }
 
 function drawBox(obj){
@@ -377,5 +379,3 @@ function checkStatusAndSearch(pid,query){
 		  });
 	  }
 }
-
-
