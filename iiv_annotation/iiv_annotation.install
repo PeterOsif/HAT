@@ -108,6 +108,10 @@ function iiv_annotation_schema() {
 
 function iiv_annotation_install(){
 	drupal_install_schema('iiv_annotation');
+	
+	//Set the Drupal variable iiv_annotation_id to its current value, 
+	//	or a new one if it is not set
+	variable_set('iiv_annotation_id', variable_get('iiv_annotation_id', sha1(time() . mt_rand())));
 }
 
 /*
