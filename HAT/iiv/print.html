@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Print Page Image</title>
+<script src="/iiv/js/jquery-1.3.2.min.js"></script>
+<script>
+  function getParameters() {
+    var params = {};
+    var qs = window.location.search.substring(1);
+    var pairs = qs.split('&');
+    for (i = 0; i < pairs.length; i++) {
+      var kv = pairs[i].split('=');
+      params[kv[0]] = unescape(kv[1]);
+    }
+    
+    return params;
+  }
+  
+  jQuery(document).ready(function() {
+    var params = getParameters();
+    jQuery('.header').text(params.pid);
+    var imageContainer = jQuery('.image');
+    var image = new Image();
+    jQuery(image).load(function() {
+      var image = jQuery(this);
+      image.hide();
+      imageContainer.children().remove();
+      imageContainer.append(image);
+      image.show();
+      window.print();
+      window.close();
+    }).attr('src', params.image);
+});
+</script>
+<style>
+  html body, table, tr, td {margin:0;padding:0;text-align:center;font-size:11px;font-family: Verdana,Arial,sans-serif;}
+  td.header {font-weight:bold; padding: 6px;}
+  img { margin: auto;}
+</style>
+</head>
+  <body>
+    <table width="100%" height="100%">
+      <tr>
+        <td class="header"></td>
+      </tr>
+      <tr>
+        <td class="image"><span class="loading">Loading image...<br><img src="images/loading.gif"></span></td>
+      </tr>
+    </table>
+  </body>
+</html>

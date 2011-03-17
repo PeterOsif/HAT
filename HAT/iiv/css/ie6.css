@@ -1,0 +1,51 @@
+.iiv-controlset.page {
+
+margin-top: -5px;
+}
+
+.iiv-controlset.page .iiv-slider-container {
+  margin-left: 0px;
+}
+
+.iiv-controlset {
+position:relative;
+}
+
+.iiv-controlset.zoom button.zoom-out {
+ margin-left:-45px;
+}
+
+.iiv-controlset.zoom button.zoom-in {
+margin-left:60px;
+}
+
+.iiv-controlset.zoom button.zoom-max {
+margin-left:93px;
+}
+
+.iiv-controlset.other {
+position:absolute;
+}
+
+.iiv-controlset.other button.text {
+margin-left:178px;
+}
+
+.iiv-controlset.other button.print {
+margin-left: 211px;
+}
+
+.iiv-canvas {
+border-top:1px solid #CCCCCC;
+}
+
+.iiv-toolbar {
+border-bottom:0px;
+}
+
+.iiv-text-container {
+position: absolute;
+overflow:auto;
+width: 96%;
+}
+
