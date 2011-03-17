@@ -119,10 +119,18 @@ function iiv_annotation_select($pid){
     array_push($sanitized_results,$row);
   }
   
+  //Need Fedora_Item, and the AnnotationSet classes/objects
+	module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+	module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
+	
+	$anno_obj = new AnnotationSet(new Fedora_Item($pid));
+	
+	$annotations_out = array_merge($sanitized_results, $anno_obj->annotations);
+  
   drupal_set_header($text_content_type);//print text to client
   
   //print all output elements as list of JSON objects
-  echo _iiv_annotation_get_jsonp_callback(json_encode($sanitized_results));
+  echo _iiv_annotation_get_jsonp_callback(json_encode($annotations_out));
 }
 
 /*
@@ -136,12 +144,48 @@ function iiv_annotation_insert($pid, $text, $location, $public){
   
   //check if user has permissions to add annotations
   if(user_access('add annotations')){
-	$result = db_query($insert_query,$pid,$user->uid,$text,$location,$public,time());
+	$timestamp = time();
+	$result = db_query($insert_query,$pid,$user->uid,$text,$location,$public,$timestamp);
 	
 	//print result to output, let the client know its plain text
 	drupal_set_header($text_content_type);
 	
-	$message = ($result == 1 ? "success" : "error");
+	if($result == 1)
+	{
+		$message = "success";
+		
+		if($public)
+		{
+			//Need the last insertion id (corresponds to the id of the inserted annotation).
+			$increment_query = "SELECT LAST_INSERT_ID()";
+			$result = db_result(db_query($increment_query));
+			
+			//Need Fedora_Item, and the AnnotationSet classes/objects
+			module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+			module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
+			
+			$anno_obj = new AnnotationSet(new Fedora_Item($pid));
+			$anno_obj->addAnnotation($result, $user-uid, $user->name, $location, $text, $timestamp);
+			
+			//Move save to deconstructor?
+			if($anno_obj->save())
+			{
+				$message = "success";
+			}
+			else
+			{
+				$message = "error";
+			}
+		}
+		else
+		{
+			$message = "success";
+		}
+	}
+	else
+	{
+		$message = "error";
+	}
 	
 	echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
   } 
@@ -152,17 +196,49 @@ Return: prints to output
 Description: Deletes a given annotation
 */
 function iiv_annotation_delete($aid, $op){
+	//used when user is deleting annotation they own
   $delete_query = "DELETE FROM {annotations} WHERE aid = %d";
+	//used when admin is deleting flagged annotation
+  $update_query = "UPDATE {annotations} SET public = 0 WHERE aid = %d";
+  //used to determine if the given annotation has to be removed from Fedora
+  $select_query = "SELECT pid, public FROM {annotations} WHERE aid = %d";
  
 
   //if the user is an administrator, or if the user is deleting their own annotation
   if(user_access('administer annotations') || 
-  (user_access('remove own annotation') && _iiv_annotation_user_owns_annotation($aid))){
-    $result = db_query($delete_query,$aid);
+  (user_access('remove own annotation') && _iiv_annotation_user_owns_annotation($aid)))
+  {
+	$result = db_fetch_array(db_query($select_query, $aid));
+	$public = $result['public'];
+	$pid = $result['pid'];
+		
+	//Let user delete their own annotation...
+	if($op == 'json')
+	{
+		$query = $delete_query;
+	}
+	elseif($op == 'admin')
+	{
+	//Update the local database otherwise (this is an administrative task)
+		$query = $update_query;
+	}
+	
+    $result = db_query($query,$aid);
     if($result){
       //load the flagging include file so we can delete all flags belonging to annotation
       module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_flagging');
       iiv_annotation_delete_flags($aid);  
+	  
+	  if($public)
+	  {
+			//Need Fedora_Item, and the AnnotationSet classes/objects
+			module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+			module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
+			
+			$anno_obj = new AnnotationSet(new Fedora_Item($pid));
+			$result = $anno_obj->deleteAnnotation($aid);
+			$anno_obj->save();
+	  }
     }
   }
   //$op is specified in the request to state whether to return plain text of to navigate back to flag admin page
@@ -181,13 +257,12 @@ function iiv_annotation_delete($aid, $op){
 
 //Returns JSON data of a given query
 function iiv_annotation_highlight($pid, $query){
-
     drupal_set_header($text_content_type);//print text to client
     $query_arr = array();
     //Decompose the query into single word, and store them in the query_arr array.
     $query_arr = explode(" ",$query);					
     //Generate the coodinates file url.
-    $host = variable_get('iiv_highlighting_fedora_url', 'http://localhost:8080/fedora');
+    $host = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
     $coodinates_url = $host.'/objects/'.$pid.'/datastreams/WORDSXY/content';
     $xmlDoc = new DOMDocument();
     if($xmlDoc->load($coodinates_url))
@@ -196,6 +271,7 @@ function iiv_annotation_highlight($pid, $query){
     	//Get each subtree of single line.
     	$element = $root->getElementsByTagName('par');
     	$result = array();
+    	$global = 0;
     	foreach($element as $new)
     	{
     		$child = $new->childNodes;
@@ -217,29 +293,10 @@ function iiv_annotation_highlight($pid, $query){
     					$OK = true;
     				}
     				if($OK)
-    				{							$scale_v1 = variable_get('iiv_highlighting_vertical', '0');
-							$scale_h1 = variable_get('iiv_highlighting_horizontal', '0');
-							$scale_v = (double)($scale_v1);
-							$scale_h = (double)($scale_h1);
-							$left = (int)($child->item($i)->getAttribute('l'));
-							watchdog ('1left',$left );
-							$top = (int)($child->item($i)->getAttribute('t'));
-							watchdog ('1top',$top );
-							$right = (int)($child->item($i)->getAttribute('r'));
-							watchdog ('1right',$right );
-							$bottom = (int)($child->item($i)->getAttribute('b'));
-							watchdog('1bottom',$bottom);
-							$vertical = ($bottom - $top) * $scale_v;
-							watchdog('1vertical',$vertical);
-							$horizontal = ($right - $left) * $scale_h;
-							watchdog('1horizontal',$horizontal);
-							$left = $left - 0.5*$horizontal;
-							$right = $right + 0.5*$horizontal;
-							$top = $top - 0.5*$vertical;
-							watchdog('second left',$left);
-							$bottom = $bottom + 0.5*$vertical; 
-							
-    						$temp = array('l'=>$left,'t'=>$top,'r'=>$right,'b'=>$bottom);
+    				{
+    					$global ++;
+    					watchdog('test',$global);
+    					$temp = array('l'=>$child->item($i)->getAttribute('l'),'t'=>$child->item($i)->getAttribute('t'),'r'=>$child->item($i)->getAttribute('r'),'b'=>$child->item($i)->getAttribute('b'));
     						array_push($result,$temp);
     				}	
     			}
@@ -270,37 +327,20 @@ function iiv_annotation_highlight($pid, $query){
     					if(strncasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue,strlen($query_arr[$j])-1) != 0)
     					{
     							$OK = false;
-    					}				
+    					}
+    					if(strlen($query_arr[$j])*2 < strlen($child->item($count)->firstChild->nodeValue))
+    					{
+    							$OK = false;
+    					}					
     				}
+    				
     				if($OK)
     				{
     					//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
     					for($k=0;$k<count($query_arr);$k++)
     					{
     						$number = $i+2*$k;
-							$scale_v1 = variable_get('iiv_highlighting_vertical', '0');
-							$scale_h1 = variable_get('iiv_highlighting_horizontal', '0');
-							$scale_v = (double)($scale_v1);
-							$scale_h = (double)($scale_h1);
-							$left = (int)($child->item($number)->getAttribute('l'));
-							watchdog ('1left',$left );
-							$top = (int)($child->item($number)->getAttribute('t'));
-							watchdog ('1top',$top );
-							$right = (int)($child->item($number)->getAttribute('r'));
-							watchdog ('1right',$right );
-							$bottom = (int)($child->item($number)->getAttribute('b'));
-							watchdog('1bottom',$bottom);
-							$vertical = ($bottom - $top) * $scale_v;
-							watchdog('1vertical',$vertical);
-							$horizontal = ($right - $left) * $scale_h;
-							watchdog('1horizontal',$horizontal);
-							$left = $left - 0.5*$horizontal;
-							$right = $right + 0.5*$horizontal;
-							$top = $top - 0.5*$vertical;
-							watchdog('second left',$left);
-							$bottom = $bottom + 0.5*$vertical; 
-							
-    						$temp = array('l'=>$left,'t'=>$top,'r'=>$right,'b'=>$bottom);
+    						$temp = array('l'=>$child->item($number)->getAttribute('l'),'t'=>$child->item($number)->getAttribute('t'),'r'=>$child->item($number)->getAttribute('r'),'b'=>$child->item($number)->getAttribute('b'));
     						array_push($result,$temp);
     				
     					}
@@ -309,6 +349,7 @@ function iiv_annotation_highlight($pid, $query){
     		}
     	
     	}
+    
         echo _iiv_annotation_get_jsonp_callback(json_encode($result));
     	
     }
@@ -356,6 +397,22 @@ Description: creates JSON for a given message {"message":"value"}
 function _iiv_annotation_json_message($message){
     $message_arr = array('message' => $message);
     return json_encode($message_arr);
+}
+
+/**
+ * Implementation of hook_rules_event_info().
+ * @ingroup rules
+ */
+function iiv_annotation_rules_event_info() {
+  return array(
+    'iiv_annotation_flag' => array(
+      'label' => t('An annotation is flagged'),
+      'module' => 'IIV Annotations',
+      'arguments' => array(
+        'flagging_user' => array('type' => 'user', 'label' => t('User that flags annotation')),
+      ),
+    ),
+  );
 }
 
 
