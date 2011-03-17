@@ -58,6 +58,9 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
         if(is_array($value)) {
           $value = implode(", ",$value);
         }
+        
+        //grab query term from URL
+        if(isset(
 
         if($field=='PID') {
           $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8') . 'text');

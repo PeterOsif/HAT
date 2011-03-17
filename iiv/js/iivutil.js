@@ -11,7 +11,7 @@ var alertTimerId = 0;
 
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
-	var baseURL="/islandora/annotation/select";
+	var baseURL= drupal_domain + "/islandora/annotation/select";
 	var newURL = baseURL +'/'+ pid ;
 
 	var html = $.ajax({
@@ -35,16 +35,16 @@ function updateStatusOnPage(details){
 function deleteAnnotation(aid){
 	var baseURL="/islandora/annotation/delete";
 	// call query function 
-	var newURL = baseURL +'/'+ aid +'/json';
-	// perform call and capture result
-	var html = $.ajax({
-	  url: newURL,
-	  async: false
-	 }).responseText;
-	console.log(html);
-	updateStatusOnPage(html);
+	var newURL = baseURL +'/'+ aid +'/json?callback=?';
 	
-	//document.data.myData.value = "Delete Worked " +html;
+	//call delete function
+    $.getJSON(newURL, function (data){
+                        deleteAnnotationCallback(data);
+                        //alert(data);
+                      });
+}
+
+function deleteAnnotationCallback(data){
 }
 
 // function to add annotations, call module to insert in the drupal database
@@ -53,7 +53,7 @@ function addAnnotation(pid,annotationText,annotationLocation,private){
 	//var baseURL="http://192.168.56.101/islandora/annotation/insert";
 	//messages success/error
 	
-	var newURL = drupalDomain + "/islandora/annotation/insert/";
+	var newURL = drupal_domain + "/islandora/annotation/insert/";
 	newURL += pid +'/' + annotationText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
       
     //call query function
@@ -70,36 +70,30 @@ function addAnnotationCallback(data){
 }
 //function to select annotations, calls module to select the drupal database
 function flagAnnotation(aid){
-	var baseURL="/islandora/annotation/flag";
-	var newURL = baseURL +'/'+ aid ;
+	var baseURL= drupal_domain + "/islandora/annotation/flag";
+	var newURL = baseURL +'/'+ aid + '/?callback=?';
 	
-	// call query function and parse JSON
-	var formText = null;
-	var output ="";
-	var html = $.ajax({
-		  url: newURL,
-		  async: false
-		 }).responseText;
-	console.log(html);
-	 //document.data.myData.value = "Flag Worked " + html;
-	updateStatusOnPage(html);
+	//call query function
+    $.getJSON(newURL, function (data){
+                        flagAnnotationCallback(data);
+                        //alert(data);
+                      });
 	
 }
+
+function flagAnnotationCallback(data){
+}
+
 //function to select annotations, calls module to select the drupal database
 function unflagAnnotation(aid){
-	var baseURL="/islandora/annotation/unflag";
-	var newURL = baseURL +'/'+ aid ;
+	var baseURL= drupal_domain + "/islandora/annotation/unflag";
+	var newURL = baseURL +'/'+ aid +'/?callback=?';
 	
-	// call query function and parse JSON
-	var formText = null;
-	var output ="";
-	var html = $.ajax({
-		  url: newURL,
-		  async: false
-		 }).responseText;
-	console.log(html);
-	updateStatusOnPage(html);
-	//document.data.myData.value = "UnFlag Worked " + html;
+	//call query function
+    $.getJSON(newURL, function (data){
+                        unflagAnnotation(data);
+                        //alert(data);
+                      });
 
 }
 
@@ -291,7 +285,7 @@ function featureSelect(feature) {
  * 
  */
  
-function saveAnnotation(annotationText,publicOn){
+function saveAnnotation(annotationText,coordinates, publicOn){
 	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
 	//alert(coordinates);	
 	var pid=viewer.currentPid();	
