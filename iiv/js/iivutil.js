@@ -12,16 +12,21 @@ var alertTimerId = 0;
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
 	var baseURL= drupal_domain + "/islandora/annotation/select";
-	var newURL = baseURL +'/'+ pid ;
+	var newURL = baseURL +'/'+ pid + '/?callback=?' ;
 
-	var html = $.ajax({
-		  url: newURL,
-		  async: false
-		 }).responseText;
-	parseSearchResults(html);
+	//call delete function
+    $.getJSON(newURL, function (data){
+                        queryForAnnotationCallback(data);
+                        //alert(data);
+                      });
+    
 	//console.log(html);
 	//document.data.myData.value = "Search Worked";
 }
+
+function queryForAnnotationCallback(data){
+}
+
 function parseSearchResults(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
 	$("div.status").text("Server Message:" + details);
