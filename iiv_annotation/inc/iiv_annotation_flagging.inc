@@ -93,13 +93,14 @@ function iiv_annotation_flag_settings_form(){
   $form['wrapper'] = array(
     '#type' => 'fieldset',
   );
-  $form['wrapper']['vertical']['ver'] = array(
+  $form['wrapper']['vertical'] = array(
     '#type' => 'textfield',
 	'#title' => t('Vertical'),
 	'#size' => 25,
 	'#weight' => -1,
 	'#description' => t('Vertical rate for highlighting. (treat as percent)'),
 	'#default_value' => (double)(variable_get('iiv_highlighting_vertical', ''))*100,
+
   ); 
   
     $form['wrapper']['horizontal'] = array(
