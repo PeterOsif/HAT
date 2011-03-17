@@ -27,6 +27,17 @@
 
 }
 
+.iiv-annToolbar {
+  position: absolute;
+  margin: 0;
+  height: 44px;
+  top: 44px;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  z-index: 200;
+
+}
+
 .iiv-annotation-pane {
     position: absolute;
     margin: 0;
@@ -42,6 +53,15 @@
 }
 
 .iiv-toolbar button {
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+/*Hat Project - Mark */
+.iiv-annToolbar button {
   position: absolute;
   height: 32px;
   width: 32px;
@@ -234,6 +254,16 @@ button.annotation{
 /*HAT Project Pete*/
 input.text {
     margin-left: 700px;
+}
+
+/*Mark*/
+button.buttonHideAnnotation{
+
+}
+
+/*Mark*/
+button.buttonFlagAnnotation{
+    margin-left: 35px;
 }
 
 button.search{

@@ -300,6 +300,11 @@ iiv.Viewer.UI = new iiv.Class({
   SearchBar: null,
   buttonSearch: null,
 
+  selectBar: null,
+  selectBox: null,
+  buttonHideAnnotation:null,
+  buttonFlagAnnotation:null,
+  
   initialize: function(options) {
     this.createUI();
   },
@@ -318,14 +323,18 @@ iiv.Viewer.UI = new iiv.Class({
 
     var ui = this.createDiv(container, 'iiv-ui ui-corner-all');
     var toolbar = this.createDiv(ui, 'iiv-toolbar');
-
+    // HAT Project Mark, Create Annotation Toolbar
+    var annToolbar = this.createDiv(ui, 'iiv-annToolbar');
+    
     this.createZoomControls(toolbar);
     this.createPageControls(toolbar);
     this.createOtherControls(toolbar);
 
     //HAT Project Pete, Create the toolbar that holds the SearchBar control, and the Search Button
     this.createSearchControls(toolbar);
-
+    //HAT Project Mark, Create the toolbar that holds the SelectBox control, and it's assosicated buttons
+    this.createSelectControls(annToolbar);
+    
 
 
 
@@ -392,12 +401,41 @@ iiv.Viewer.UI = new iiv.Class({
     return controls;
   },
 
+  //Mark  -->
+  createSelectControls: function(annToolbar){
+    var annControls = this.createControlSet(annToolbar, 'selectBar');
+    
+    //selectBar populated with annotations
+    this.selectBar = this.createSelectBar(annControls, 'select', 'Select Box');
+    jQuery('#selectBox').append('<option value="Public Annotations"> Public Annotations </option>');
+    //check that the user is logged in 
+    if (true) //turn off check for now (this.uid > 0)
+    {
+    	jQuery('#selectBox').append('<option value="My Annotations"> My Annotations </option>');
+    }    
+    
+    //add Hide / Show annotation button
+    this.buttonHideAnnotation = this.createButton(annControls, 'buttonHideAnnotation', 'Hide Annotation', 'ui-icon-comment ');
+    //add Flagging annotation button
+    this.buttonFlagAnnotation = this.createButton(annControls, 'buttonFlagAnnotation', 'Flag Annotation', 'ui-icon-flag ');
+    
+    return annControls;
+  },
+  
   // Pete -->
   createSearchBar: function(parent, name, title) {
       var searchBar = jQuery('<input class="'+ name +' ui-corner-all ui-state-default" name="searchBar" ID="searchBar" type="' + name + '"  title="' + title + '"/>');
 	  //var searchBar = jQuery('<input class="text" name="searchBar" id="searchBar" />');
 	  parent.append(searchBar);
     return searchBar;
+  },
+  
+  // Mark -->
+  createSelectBar: function(parent, name, title) {
+      var selectBox = jQuery('<select class="'+ name +' ui-corner-all ui-state-default" name="selectBox" ID="selectBox" type="' + name + '"  title="' + title + '"/>');
+	  parent.append(selectBox); 
+	  
+    return selectBox;
   },
 
 
@@ -540,9 +578,23 @@ iiv.Viewer.UI = new iiv.Class({
     	viewerUI.multipolygonToggle();
       });
       // Pete, function for annotation button.
-    viewerUI.buttonAnnotation.click(function() {
-         viewerUI.annotationToggle();
-     });
+      viewerUI.buttonAnnotation.click(function() {
+           viewerUI.annotationToggle();
+       });
+      // Mark, fuction for Hide Annotation Button
+      viewerUI.buttonHideAnnotation.click(function() {
+           viewerUI.hideAnnotationToggle();
+       });
+      // Mark, Function for Flag annotation button
+      viewerUI.buttonFlagAnnotation.click(function() {
+           viewerUI.flagAnnotationToggle();
+       });
+      // Mark, Function for when the Select box onChange event triggers
+      //not sure why I can't trigger this via the viewerUI.selectBox onchange, change, onChange, events....
+      //viewerUI.selectBox.onfocus(function() {  
+        jQuery('#selectBox').change(function(){
+      	  viewerUI.selectBoxOnChange();
+       });
   },
 
   printPage: function() {
@@ -641,8 +693,29 @@ iiv.Viewer.UI = new iiv.Class({
     // Pete Annotation button function.
   annotationToggle: function(){
       alert("Make annotations dissappear... or reapprear");
-  }
-
+  },
+  // Mark Annotation Hide / Show
+  hideAnnotationToggle: function(){
+       alert("Hook for annotations Hide / Show");
+       //dynamically add a value to the selectbox, staic values, would be filled by the Annotation info
+       //jQuery('#selectBox').append('<option value="One"> One </option>');
+   },
+   // Mark Annotations Flagging
+   flagAnnotationToggle: function(){
+	  var pid = this.viewer.currentPid();
+	  var uid = this.uid;
+      alert("PID: " + pid);
+      alert("UID: " + uid);
+      //queryForAnnotation(pid)
+      
+   },
+   	// Mark selectBox onChange event
+   selectBoxOnChange: function(){
+	  var selectedItem = jQuery('#selectBox').val();
+	  //dummy display which represents the display of the appropriate item when selected. 
+       alert("Item selected :" + selectedItem);
+       
+   	}
 
 });
 
