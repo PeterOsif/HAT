@@ -165,7 +165,7 @@ function iiv_annotation_insert($pid, $text, $location, $public){
 			module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
 			
 			$anno_obj = new AnnotationSet(new Fedora_Item($pid));
-			$anno_obj->addAnnotation($result, $user-uid, $user->name, $location, $text, $timestamp);
+			$anno_obj->addAnnotation($result, $user->uid, $user->name, $location, $text, $timestamp);
 			
 			//Move save to deconstructor?
 			if($anno_obj->save())
