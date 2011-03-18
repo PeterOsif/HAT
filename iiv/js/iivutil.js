@@ -271,7 +271,7 @@ function featureSelect(feature) {
         "close this popup if you want to make another selection.<br/><br/>" +
         "<strong>Annotation Text:</strong><br/>" +       
         "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
-        "<div id='saveData' align='right'"+       
+        "<div id='saveData' align='right'>"+       
         	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
         "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
         "</div>" + 
