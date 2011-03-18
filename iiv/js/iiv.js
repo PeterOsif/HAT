@@ -710,7 +710,7 @@ iiv.Viewer.UI = new iiv.Class({
 	  var uid = this.uid;
       alert("PID: " + pid);
       alert("UID: " + uid);
-      //queryForAnnotation(pid)
+      queryForAnnotation(pid)
       
    },
    	// Mark selectBox onChange event

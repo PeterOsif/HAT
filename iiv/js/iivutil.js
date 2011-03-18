@@ -12,17 +12,22 @@ var alertTimerId = 0;
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
 	var baseURL= drupal_domain + "/islandora/annotation/select";
-	var newURL = baseURL +'/'+ pid ;
+	var newURL = baseURL +'/'+ pid + '/?callback=?' ;
 
-	var html = $.ajax({
-		  url: newURL,
-		  async: false
-		 }).responseText;
-	parseSearchResults(html);
+	//call delete function
+    $.getJSON(newURL, function (data){
+                        queryForAnnotationCallback(data);
+                        //alert(data);
+                      });
+    
 	//console.log(html);
 	//document.data.myData.value = "Search Worked";
 	//alert(html); //test code
 }
+
+function queryForAnnotationCallback(data){
+}
+
 function parseSearchResults(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
 	$("div.status").text("Server Message:" + details);
@@ -267,7 +272,7 @@ function featureSelect(feature) {
         "close this popup if you want to make another selection.<br/><br/>" +
         "<strong>Annotation Text:</strong><br/>" +       
         "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
-        "<div id='saveData' align='right'"+       
+        "<div id='saveData' align='right'>"+       
         	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
         "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
         "</div>" + 
