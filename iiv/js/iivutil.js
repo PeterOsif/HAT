@@ -8,6 +8,16 @@
  */
 var searchStatus = "";
 var alertTimerId = 0;
+var annotationArray = new Array();
+
+//Parent function to be called to called by other events to set up everything for the annotations display
+function annotationInit(pid){
+	clearSelectBox();
+	//TODO Reactive line below when functionaly has been extended to deal with an empty or nonexistant layer
+	//clearAnnotationLayer();
+	queryForAnnotation(pid);
+	
+}
 
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
@@ -26,6 +36,99 @@ function queryForAnnotation(pid){
 }
 
 function queryForAnnotationCallback(data){
+
+	//ensure the selectBox is reset
+	clearSelectBox();
+	
+	//counter, offset to allow for the two entries of public and my annotation in selectBox
+	var counter = 2;
+	
+	for (var i=0;i<data.length;i++){
+		var obj = data[i];
+		
+		//grab the date for selectBox and format it to DD/MM/YYYY
+		var date = new Date(obj.timestamp * 1000);
+		var day = date.getDay();
+		var month = date.getMonth();
+		var year = date.getFullYear();
+		
+		var dateDisplay = "" + day + "/" + month + "/" + year;
+					
+		//grab the first 20 characters in the annotation to help with selectionBox display
+		var annDisplay = obj.annotation_text.substr(0,20);
+		
+		var display = dateDisplay + " - " + annDisplay;
+		
+		
+		//build the values in the selectBox
+		jQuery('#selectBox').append('<option value="' + counter + '">' + display + '  </option>');
+		
+		//add the value to the annotationArray so it can be called later
+		//alert(obj.annotation_text + "   " + obj.annotation_text);
+		//TODO JSON public key probably needs to be changed from "Public" as that word might be protected
+		//TODO this new key would go in the next line where the 1 is hard coded
+		var tempAnnotation = new annotationObject(obj.annotation_text, obj.annotation_location_size, 1, obj.uid);
+		annotationArray[counter] = tempAnnotation;
+		counter++;
+	}		
+	
+}
+
+function showAnnotation(index){
+	//clear all annotations
+	clearAnnotationLayer();
+	
+	//check if they want to view all public annotations
+	if (index == "Public" ){
+		//alert("Showing Public Annotations Check 1");
+		for (var i=2;i<annotationArray.length;i++){
+			var obj = annotationArray[i];
+			//Show all public annotations
+			//alert("obj.pub " + obj.pub );
+			if (obj.pub == "1"){
+				//alert("Showing Public Annotations Check 3");
+				drawPolygon(obj.text, obj.geom);
+			}
+		}
+	}
+	//display a persons private annotations
+	else if (index == "Private"){
+		//alert("Showing Private Annotations Check 1");
+		for (var i=2;i<annotationArray.length;i++){
+			var obj = annotationArray[i];
+			//alert("UID Logged In / UID of Annotation: " + drupal_uid + "/"+ obj.uid );			
+			if (obj.uid == drupal_uid){
+				//alert("Showing My Private Annotations Check 2");
+				drawPolygon(obj.text, obj.geom);
+			}
+		}
+	}
+	//display the selected annotation
+	else {
+		var obj = annotationArray[index];
+		drawPolygon(obj.text, obj.geom);
+	}
+	
+}
+		
+
+
+//function to instantiate an annotations Object 
+function annotationObject(text, geom, pub, uid){
+	this.text = text;
+	this.geom = geom;
+	this.pub = pub;
+	this.uid = uid;
+}
+
+
+function clearSelectBox(){
+	jQuery('#selectBox').children().remove();
+    
+	//initialize base values
+	jQuery('#selectBox').append('<option value="Public"> Public Annotations </option>');
+   	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
+    
 }
 
 function parseSearchResults(details){
@@ -221,6 +324,7 @@ function getAnnotationLayer(){
 }
 
 function clearAnnotationLayer(){
+	
     getAnnotationLayer().destroyFeatures();
 }
 
