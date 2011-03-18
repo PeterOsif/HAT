@@ -697,6 +697,10 @@ iiv.Viewer.UI = new iiv.Class({
   // Mark Annotation Hide / Show
   hideAnnotationToggle: function(){
        alert("Hook for annotations Hide / Show");
+       
+       //test code
+       queryForAnnotation(this.viewer.currentPid());
+       
        //dynamically add a value to the selectbox, staic values, would be filled by the Annotation info
        //jQuery('#selectBox').append('<option value="One"> One </option>');
    },

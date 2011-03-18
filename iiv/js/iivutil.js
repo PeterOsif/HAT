@@ -21,6 +21,7 @@ function queryForAnnotation(pid){
 	parseSearchResults(html);
 	//console.log(html);
 	//document.data.myData.value = "Search Worked";
+	//alert(html); //test code
 }
 function parseSearchResults(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
