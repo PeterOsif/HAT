@@ -102,6 +102,9 @@ iiv.Viewer = new iiv.Class({
     });//OpenLayers.Util.extend
     //end add by sfb  
     
+    //added by sfb --using for debugging
+    map.addControl(new OpenLayers.Control.LayerSwitcher());
+    map.addControl(new OpenLayers.Control.MousePosition());
     //sabina 
     mulpolyControl = new OpenLayers.Control(this.map);
     vectors = new OpenLayers.Layer.Vector("Polygon Layer");
