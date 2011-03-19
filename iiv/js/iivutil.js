@@ -9,6 +9,7 @@
 var searchStatus = "";
 var alertTimerId = 0;
 var annotationArray = new Array();
+var popup = null;
 
 //Parent function to be called to called by other events to set up everything for the annotations display
 function annotationInit(pid){
@@ -257,9 +258,11 @@ function onPopupClose(evt) {
 	//polyControl.unselect(this.feature);
 	//alert(evt);
     document.getElementById('iiv-image-panel').style.cursor = 'move';
-    map.removePopup(popup);
-    popup.destroy();
-    popup = null;
+   if (popup != null ) {
+	    map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+   }
     polyControl.box.clear();
    
     map.removeControl(polyControl);
@@ -273,11 +276,18 @@ function onPopupClose(evt) {
 //added by sfb
 function boxNotice(geom) {
 	 document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+	
     var feature = new OpenLayers.Feature.Vector(geom, null, {
         strokeColor: "#0033ff",
         strokeOpacity: 0.7,
         strokeWidth: 5
     });
+    // if there is already a popup shown remove it
+    if (popup != null ) {
+	    map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+    }
     featureSelect(feature);
     //sortOutButtons(oDragPanCtrl, false);
 }//boxNotice
@@ -335,6 +345,8 @@ function featureSelect(feature) {
     //need to have a minimum selection
     if (feature.geometry.getArea() < 10)
         return;
+
+    
     document.getElementById('iiv-image-panel').style.cursor = 'move';
     /*
     */
@@ -368,22 +380,23 @@ function featureSelect(feature) {
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
         null,
-        "<div id='popupdiv'><form><strong>Selection from <i>" +
+        "<div id='popupdiv'><strong>Selection from <i>" +
         title +"</i></strong><br/>\n" +
         "Please enter an annotation for the selected information, or<br/>\n" +
         "close this popup if you want to make another selection.<br/><br/>" +
         "<strong>Annotation Text:</strong><br/>" +       
-        "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
-        "<div id='saveData' align='right'>"+       
-        	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
+        "<div id='saveData' align='right'>" +
+        "<form name='popform' action='#'>"+ 
+        "<textarea name='annotationText' id='annotationText' cols='42' rows='6' wrap></textarea><br/>" + 
+        "<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
         "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
-        "</div>" + 
+        "</form></div>" + 
         "<br clear=\"left\"/>" +
        // sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
        // parseInt(bounds.getHeight())) +
         "<br clear=\"left\"/>" +
         //"<i>Coming Soon: annotate this selection!</i>" +
-        "</form></div>", 
+        "</div>", 
         null, true, onPopupClose);
        feature.popup = popup;
     map.addPopup(popup);
@@ -397,7 +410,13 @@ function saveAnnotation(annotationText,coordinates, publicOn){
 	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
 	//alert(coordinates);	
 	var pid=viewer.currentPid();	
-	addAnnotation(pid,annotationText,coordinates,publicOn);	
+	addAnnotation(pid,annotationText,coordinates,publicOn);
+	// sfb, added to close popup box
+	if (popup != null) {
+		map.removePopup(popup);
+		popup.destroy();
+		popup = null;
+	}
 }
 
 function drawBox(obj){
