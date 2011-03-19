@@ -48,8 +48,8 @@ function queryForAnnotationCallback(data){
 		
 		//grab the date for selectBox and format it to DD/MM/YYYY
 		var date = new Date(obj.timestamp * 1000);
-		var day = date.getDay();
-		var month = date.getMonth();
+		var day = date.getDate();
+		var month = date.getMonth() + 1;
 		var year = date.getFullYear();
 		
 		var dateDisplay = "" + day + "/" + month + "/" + year;
@@ -207,7 +207,6 @@ function unflagAnnotation(aid){
 }
 
 //function to grab coordinates for text to highlight
-var coords;
 function getHighlightCoordinates(pid, query){
     var newURL = drupal_domain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
       
@@ -216,7 +215,6 @@ function getHighlightCoordinates(pid, query){
                         getHighlightCoordinatesCallback(data);
                         //alert(data);
                       }); 
-    return coords;
 }
 
 
