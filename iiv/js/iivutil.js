@@ -377,7 +377,8 @@ function featureSelect(feature) {
     
     var viewerUI = this;
     var title = "www.islandnewspapers.ca";
-    var testField = "if ($('#annotationText').val().length > 0) { return true } else { alert('Please ensure annotation text');}";
+    //TODO: test the input field to ensure text exists
+    //var testField = "if ($('#annotationText').val().length > 0) { return true } else { alert('Please ensure annotation text');}";
     var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "',$('input[name=annotationPublic]:checked').val());";
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
