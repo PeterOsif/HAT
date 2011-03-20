@@ -241,7 +241,7 @@ function getHighlightCoordinatesCallback(retData){
 //added by sfb
 function setupPopControl(){
 	   map.addControl(polyControl);
-	   polyControl.activate();
+	   //polyControl.activate();
 	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
 }
 //Sabina
@@ -260,15 +260,14 @@ function onPopupClose(evt) {
 	//polyControl.unselect(this.feature);
 	//alert(evt);
     document.getElementById('iiv-image-panel').style.cursor = 'move';
-   if (popup != null ) {
-	    map.removePopup(popup);
-	    popup.destroy();
-	    popup = null;
-   }
-    polyControl.box.clear();
    
-    map.removeControl(polyControl);
+   
+   //imageLayer.activate();
+   
+    //map.removeControl(polyControl);
+    closePopupAndChangeControls();
     //TODO:set focus back to map so selection doesn't occur again
+    changeBackToImage();
 }
 
 /**
@@ -277,7 +276,10 @@ function onPopupClose(evt) {
  */
 //added by sfb
 function boxNotice(geom) {
-	 document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+	
+	//polyControl.activate();
+    // document.getElementById('map').style.cursor = 'crosshair';
+    // document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
 	
     var feature = new OpenLayers.Feature.Vector(geom, null, {
         strokeColor: "#0033ff",
@@ -378,6 +380,7 @@ function featureSelect(feature) {
     
     var viewerUI = this;
     var title = "www.islandnewspapers.ca";
+    var testField = "if ($('#annotationText').val().length > 0) { return true } else { alert('Please ensure annotation text');}";
     var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "',$('input[name=annotationPublic]:checked').val());";
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
@@ -414,11 +417,14 @@ function saveAnnotation(annotationText,coordinates, publicOn){
 	var pid=viewer.currentPid();	
 	addAnnotation(pid,annotationText,coordinates,publicOn);
 	// sfb, added to close popup box
-	if (popup != null) {
-		map.removePopup(popup);
-		popup.destroy();
-		popup = null;
-	}
+	//if (popup != null) {
+	//	map.removePopup(popup);
+	//	popup.destroy();
+	//	popup = null;
+	//}
+	closePopupAndChangeControls();
+    //TODO:set focus back to map so selection doesn't occur again
+    changeBackToImage();
 }
 
 function drawBox(obj){
@@ -501,4 +507,38 @@ function checkStatusAndSearch(pid,query){
 		    });
 		  });
 	  }
+}
+function changeBackToImage(){
+	// deactivate controls
+	for( var i=0; i<map.controls.length; i++ ) {
+		map.controls[i].deactivate();
+	} 
+	
+	//set back to navigation control
+	map.getControl("OpenLayers.Control.Navigation_4").activate();
+	//map.getControl("OpenLayers.Control.MouseDefaults_4").activate();
+	//map.getControl("OpenLayers.Control.KeyboardDefaults_5").activate();
+}
+
+function closePopupAndChangeControls(){
+    if (polyControl != null ) {
+    	if (polyControl.box != null){
+    		polyControl.box.clear(); 
+        	polyControl.deactivate();
+    	}
+    }
+    if (mulpolyControl != null ) {
+    	//	mulpolyControl.box.clear(); 
+    	 var mulpolyControlLayer = this.map.getLayersByName("Polygon Layer");
+    	// mulpolyControlLayer.destroyFeatures();
+    	mulpolyControl.deactivate();
+    	//clearAnnotationLayer();
+    }
+
+    
+	if (popup != null ) {
+	    map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+    }
 }

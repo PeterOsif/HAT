@@ -101,14 +101,18 @@ iiv.Viewer = new iiv.Class({
 	    }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
+    polygonLayer = new OpenLayers.Layer.Vector("Annotations");
     
-    //added by sfb --using for debugging
-    map.addControl(new OpenLayers.Control.LayerSwitcher());
-    map.addControl(new OpenLayers.Control.MousePosition());
+    //added by sfb --use for debugging
+    //map.addControl(new OpenLayers.Control.LayerSwitcher());
+    //map.addControl(new OpenLayers.Control.MousePosition());
     //sabina 
     mulpolyControl = new OpenLayers.Control(this.map);
     vectors = new OpenLayers.Layer.Vector("Polygon Layer");
-    map.addLayers([imageLayer, vectors]);
+   // map.addLayers([imageLayer, vectors]);
+    //sfb fixed
+    map.addLayers([polygonLayer, vectors]);
+    
     OpenLayers.Util.extend(mulpolyControl, {
        draw: function() {       	 
          this.poly = new OpenLayers.Handler.Polygon(mulpolyControl,
@@ -124,6 +128,8 @@ iiv.Viewer = new iiv.Class({
  },    
     createMapControls: function() {
     var controls = [
+                    //added sfb
+        new OpenLayers.Control.Navigation({documentDrag: true}),
         new OpenLayers.Control.MouseDefaults(),
         new OpenLayers.Control.KeyboardDefaults()
        ];
