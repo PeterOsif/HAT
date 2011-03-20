@@ -296,8 +296,7 @@ function boxNotice(geom) {
 function drawPolygon(annotationText,geom)
 {
    var pointList = [];
-   var splitPixels=geom.split(",");
-   console.log(splitPixels);   
+   var splitPixels=geom.split(","); 
    for(var i = 0; i < splitPixels.length; i++){
    	   var splitXY=splitPixels[i].split(" ");    	   
    	   var x=(parseInt(splitXY[0]));
