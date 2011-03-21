@@ -74,11 +74,9 @@ function queryForAnnotationCallback(data){
 	}		
 	
 }
-
 function showAnnotation(index){
 	//clear all annotations
 	clearAnnotationLayer();
-	
 	//check if they want to view all public annotations
 	if (index == "Public" ){
 		//alert("Showing Public Annotations Check 1");
@@ -295,6 +293,17 @@ function boxNotice(geom) {
 }//boxNotice
 
 //Sabina
+function toggleHighlightLayer(){
+	var highlightLayer = getHighlightLayer();
+	if(highlightLayer!==null){
+		if(highlightLayer.getVisibility()===true){		
+			highlightLayer.setVisibility(false);
+		}
+		else{
+			highlightLayer.setVisibility(true);
+		}
+	}
+}
 function drawPolygon(annotationText,geom)
 {
    var pointList = [];
@@ -313,7 +322,30 @@ function drawPolygon(annotationText,geom)
 	var polygonFeature = new OpenLayers.Feature.Vector(linearRing, null); 
 	var annotationLayer = getAnnotationLayer();                     
 	annotationLayer.addFeatures([polygonFeature]);      
-	//alert(annotationLayer.getVisibility());      
+	//alert(annotationLayer.getVisibility()); 
+	selectedControl=polygonFeature;
+	var popupPosition =   polygonFeature.geometry.getBounds().getCenterLonLat();//lonlat
+	var len=annotationText.length; 
+	var opacity =0.8;    
+	popup = new OpenLayers.Popup.Anchored("ID", //id 
+				     popupPosition,
+				     new OpenLayers.Size(len*10,len*3),//size w*h                                     
+				     "<font color='green'>"+annotationText+"</font>",//HTML content
+				     null,//anchor
+				     true,//function to be called on closeBox Click
+				     onAnnotationPopupClose);
+	
+	annotationLayer.popup=popup;
+	popup.setOpacity(opacity);       
+	annotationLayer.addFeatures([polygonFeature]);         
+	map.addPopup(popup);  
+}
+function onAnnotationPopupClose(evt) {   
+    // alert(evt);      
+    document.getElementById('iiv-image-panel').style.cursor = 'move';
+    map.removePopup(this);
+    selectedControl.destroy();  
+    popup=null;
 }
   
 function getAnnotationLayer(){

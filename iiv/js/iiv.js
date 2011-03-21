@@ -424,8 +424,8 @@ iiv.Viewer.UI = new iiv.Class({
     //add Flagging annotation button
     this.buttonFlagAnnotation = this.createButton(annControls, 'buttonFlagAnnotation', 'Flag Annotation', 'ui-icon-flag ');
     //Sabina
-    this.buttonPolygon = this.createButton(annControls, 'polygon', 'Draw Polygon', 'ui-icon-arrow-2-se-nw');
-	this.buttonMultiPolygon = this.createButton(annControls, 'poly', 'Draw Multipoint Polygon', 'ui-icon-comment');
+    this.buttonPolygon = this.createButton(annControls, 'polygon', 'Draw Rectangle', 'ui-icon-arrow-2-se-nw');
+    this.buttonMultiPolygon = this.createButton(annControls, 'poly', 'Draw Polygon', 'ui-icon-comment');
 	
     return annControls;
   },
@@ -600,6 +600,13 @@ iiv.Viewer.UI = new iiv.Class({
       	viewerUI.selectBoxOnChange();
      	  
        });
+
+      //Pete, Added onkeypress function. Please note, viewerUI uses JQuery functions only!
+      viewerUI.SearchBar.keyup(function(e){
+          if(e.keyCode == 13) {
+            viewerUI.searchToggle();
+          }
+      });
   },
 
   printPage: function() {
@@ -671,8 +678,7 @@ iiv.Viewer.UI = new iiv.Class({
 
   highlightToggle: function(){
   	  console.log("here is the code to highlight");
-  	  //TODO Cycle the display of the Highlighted Text
- 	  
+  	  toggleHighlightLayer(); 	  
   },
 
   searchToggle: function(){
@@ -718,7 +724,7 @@ iiv.Viewer.UI = new iiv.Class({
 	   //draw the annotation
        showAnnotation(selectedItem);
        
-   	}
+  }
 
 });
 
