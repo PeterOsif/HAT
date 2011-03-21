@@ -107,7 +107,7 @@ Description: Returns annotation data for a given pid in JSON format
 */
 function iiv_annotation_select($pid){
   global $user;
-  $select_query = "SELECT * FROM {annotations} WHERE (public = 1 OR uid = %d) AND pid = '%s'";
+  $select_query = "SELECT * FROM {annotations} WHERE public = 0 AND uid = %d AND pid = '%s'";
   $result = db_query($select_query, $user->uid, $pid);
   
   $sanitized_results = array();
