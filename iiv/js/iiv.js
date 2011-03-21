@@ -6,6 +6,8 @@ var polygonLayer;
 var map;
 // end of add sfb
 
+
+
 iiv.Class = function(prototype) {
     var c = function(options) {
       jQuery.extend(this, options);
@@ -99,11 +101,18 @@ iiv.Viewer = new iiv.Class({
 	    }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
+    polygonLayer = new OpenLayers.Layer.Vector("Annotations");
     
+    //added by sfb --use for debugging
+    //map.addControl(new OpenLayers.Control.LayerSwitcher());
+    //map.addControl(new OpenLayers.Control.MousePosition());
     //sabina 
     mulpolyControl = new OpenLayers.Control(this.map);
     vectors = new OpenLayers.Layer.Vector("Polygon Layer");
-    map.addLayers([imageLayer, vectors]);
+   // map.addLayers([imageLayer, vectors]);
+    //sfb fixed
+    map.addLayers([polygonLayer, vectors]);
+    
     OpenLayers.Util.extend(mulpolyControl, {
        draw: function() {       	 
          this.poly = new OpenLayers.Handler.Polygon(mulpolyControl,
@@ -119,6 +128,8 @@ iiv.Viewer = new iiv.Class({
  },    
     createMapControls: function() {
     var controls = [
+                    //added sfb
+        new OpenLayers.Control.Navigation({documentDrag: true}),
         new OpenLayers.Control.MouseDefaults(),
         new OpenLayers.Control.KeyboardDefaults()
        ];
@@ -220,11 +231,15 @@ iiv.Viewer = new iiv.Class({
   //move forward/backwards in page numbers - MR
   nextPid: function() {
     clearHighlightLayer();
+    clearAnnotationLayer();
+	clearSelectBox();
     this.setPage(this.pageIndex + 1);
   },
 
   previousPid: function() {
     clearHighlightLayer();
+    clearAnnotationLayer();
+	clearSelectBox();
     this.setPage(this.pageIndex - 1);
   },
 
@@ -276,6 +291,7 @@ iiv.Viewer = new iiv.Class({
   
   
 });
+
 
 
 // Hat Project Mark, setup the controls for the UI display
@@ -384,9 +400,7 @@ iiv.Viewer.UI = new iiv.Class({
     this.buttonPrint = this.createButton(controls, 'print', 'Print page', 'ui-icon-print');
     //HAT Changes
     this.buttonHighlight = this.createButton(controls, 'highlight', 'Highlight Text', 'ui-icon-pencil');
-    //Sabina
-    this.buttonPolygon = this.createButton(controls, 'polygon', 'Draw Polygon', 'ui-icon-arrow-2-se-nw');
-	this.buttonMultiPolygon = this.createButton(controls, 'poly', 'Draw Multipoint Polygon', 'ui-icon-comment');
+
     return controls;
   },
 
@@ -396,8 +410,6 @@ iiv.Viewer.UI = new iiv.Class({
     this.SearchBar = this.createSearchBar(controls, 'text', 'Search Bar');
     //add the search button
     this.buttonSearch = this.createButton(controls, 'search', 'Search', 'ui-icon-search');
-    //add annotation button
-    this.buttonAnnotation = this.createButton(controls, 'annotation', 'Annotation', 'iiv-icon-text');
     return controls;
   },
 
@@ -406,19 +418,15 @@ iiv.Viewer.UI = new iiv.Class({
     var annControls = this.createControlSet(annToolbar, 'selectBar');
     
     //selectBar populated with annotations
-    this.selectBar = this.createSelectBar(annControls, 'select', 'Select Box');
-    jQuery('#selectBox').append('<option value="Public Annotations"> Public Annotations </option>');
-    //check that the user is logged in 
-    if (true) //turn off check for now (this.uid > 0)
-    {
-    	jQuery('#selectBox').append('<option value="My Annotations"> My Annotations </option>');
-    }    
-    
+    this.selectBar = this.createSelectBar(annControls, 'select', 'Select Box');   
     //add Hide / Show annotation button
     this.buttonHideAnnotation = this.createButton(annControls, 'buttonHideAnnotation', 'Hide Annotation', 'ui-icon-comment ');
     //add Flagging annotation button
     this.buttonFlagAnnotation = this.createButton(annControls, 'buttonFlagAnnotation', 'Flag Annotation', 'ui-icon-flag ');
-    
+    //Sabina
+    this.buttonPolygon = this.createButton(annControls, 'polygon', 'Draw Polygon', 'ui-icon-arrow-2-se-nw');
+	this.buttonMultiPolygon = this.createButton(annControls, 'poly', 'Draw Multipoint Polygon', 'ui-icon-comment');
+	
     return annControls;
   },
   
@@ -577,10 +585,6 @@ iiv.Viewer.UI = new iiv.Class({
       viewerUI.buttonMultiPolygon.click(function() {
     	viewerUI.multipolygonToggle();
       });
-      // Pete, function for annotation button.
-      viewerUI.buttonAnnotation.click(function() {
-           viewerUI.annotationToggle();
-       });
       // Mark, fuction for Hide Annotation Button
       viewerUI.buttonHideAnnotation.click(function() {
            viewerUI.hideAnnotationToggle();
@@ -593,7 +597,8 @@ iiv.Viewer.UI = new iiv.Class({
       //not sure why I can't trigger this via the viewerUI.selectBox onchange, change, onChange, events....
       //viewerUI.selectBox.onfocus(function() {  
         jQuery('#selectBox').change(function(){
-      	  viewerUI.selectBoxOnChange();
+      	viewerUI.selectBoxOnChange();
+     	  
        });
   },
 
@@ -666,11 +671,8 @@ iiv.Viewer.UI = new iiv.Class({
 
   highlightToggle: function(){
   	  console.log("here is the code to highlight");
-  	  //temporary- drawPolygon method call
- 	   drawPolygon("Sample text","5936 9511,7200 8919,6528 8327,5696 8743,5936 9511");
-          drawPolygon("Sample text 1","1600 7479,1600 8567,3632 8567,3632.0000000000005 7479,1600 7479");  
-          drawPolygon("Annotation Text","2176 8087,3456 8103,4304 7303,4160 6711,3504 6743,2448 6967,3312 7335,2176 8087");  
-
+  	  //TODO Cycle the display of the Highlighted Text
+ 	  
   },
 
   searchToggle: function(){
@@ -690,30 +692,31 @@ iiv.Viewer.UI = new iiv.Class({
 	    setupPopControlforPolygon();
 	    
    },
-    // Pete Annotation button function.
-  annotationToggle: function(){
-      alert("Make annotations dissappear... or reapprear");
-  },
+
   // Mark Annotation Hide / Show
   hideAnnotationToggle: function(){
-       alert("Hook for annotations Hide / Show");
-       //dynamically add a value to the selectbox, staic values, would be filled by the Annotation info
-       //jQuery('#selectBox').append('<option value="One"> One </option>');
+       //alert("Hook for annotations Hide / Show");
+       queryForAnnotation(this.viewer.currentPid());
+
    },
    // Mark Annotations Flagging
    flagAnnotationToggle: function(){
-	  var pid = this.viewer.currentPid();
-	  var uid = this.uid;
-      alert("PID: " + pid);
-      alert("UID: " + uid);
-      //queryForAnnotation(pid)
+//	  var pid = this.viewer.currentPid();
+//	  var uid = drupal_uid;
+//      alert("PID: " + pid);
+//      alert("UID: " + uid);
+	   //TODO Flag the selected annotation
       
    },
    	// Mark selectBox onChange event
    selectBoxOnChange: function(){
-	  var selectedItem = jQuery('#selectBox').val();
-	  //dummy display which represents the display of the appropriate item when selected. 
-       alert("Item selected :" + selectedItem);
+	   //get the index of the item that is currently selected
+	   var selectedItem = jQuery('#selectBox').val();
+	   
+	   //alert("SelectBox Value: " + selectedItem); //test code
+	   
+	   //draw the annotation
+       showAnnotation(selectedItem);
        
    	}
 

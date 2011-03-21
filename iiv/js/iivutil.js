@@ -8,20 +8,130 @@
  */
 var searchStatus = "";
 var alertTimerId = 0;
+var annotationArray = new Array();
+var popup = null;
+
+//Parent function to be called to called by other events to set up everything for the annotations display
+function annotationInit(pid){
+	clearSelectBox();
+	//TODO Reactive line below when functionaly has been extended to deal with an empty or nonexistant layer
+	//clearAnnotationLayer();
+	queryForAnnotation(pid);
+	
+}
 
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
 	var baseURL= drupal_domain + "/islandora/annotation/select";
-	var newURL = baseURL +'/'+ pid ;
+	var newURL = baseURL +'/'+ pid + '/?callback=?' ;
 
-	var html = $.ajax({
-		  url: newURL,
-		  async: false
-		 }).responseText;
-	parseSearchResults(html);
+	//call delete function
+    $.getJSON(newURL, function (data){
+                        queryForAnnotationCallback(data);
+                        //alert(data);
+                      });
+    
 	//console.log(html);
 	//document.data.myData.value = "Search Worked";
+	//alert(html); //test code
 }
+
+function queryForAnnotationCallback(data){
+
+	//ensure the selectBox is reset
+	clearSelectBox();
+	
+	//counter, offset to allow for the two entries of public and my annotation in selectBox
+	var counter = 2;
+	
+	for (var i=0;i<data.length;i++){
+		var obj = data[i];
+		
+		//grab the date for selectBox and format it to DD/MM/YYYY
+		var date = new Date(obj.timestamp * 1000);
+		var day = date.getDate();
+		var month = date.getMonth() + 1;
+		var year = date.getFullYear();
+		
+		var dateDisplay = "" + day + "/" + month + "/" + year;
+					
+		//grab the first 20 characters in the annotation to help with selectionBox display
+		var annDisplay = obj.annotation_text.substr(0,20);
+		
+		var display = dateDisplay + " - " + annDisplay;
+		
+		
+		//build the values in the selectBox
+		jQuery('#selectBox').append('<option value="' + counter + '">' + display + '  </option>');
+		
+		//add the value to the annotationArray so it can be called later
+		//alert(obj.annotation_text + "   " + obj.annotation_text);
+		//TODO JSON public key probably needs to be changed from "Public" as that word might be protected
+		//TODO this new key would go in the next line where the 1 is hard coded
+		var tempAnnotation = new annotationObject(obj.annotation_text, obj.annotation_location_size, 1, obj.uid);
+		annotationArray[counter] = tempAnnotation;
+		counter++;
+	}		
+	
+}
+
+function showAnnotation(index){
+	//clear all annotations
+	clearAnnotationLayer();
+	
+	//check if they want to view all public annotations
+	if (index == "Public" ){
+		//alert("Showing Public Annotations Check 1");
+		for (var i=2;i<annotationArray.length;i++){
+			var obj = annotationArray[i];
+			//Show all public annotations
+			//alert("obj.pub " + obj.pub );
+			if (obj.pub == "1"){
+				//alert("Showing Public Annotations Check 3");
+				drawPolygon(obj.text, obj.geom);
+			}
+		}
+	}
+	//display a persons private annotations
+	else if (index == "Private"){
+		//alert("Showing Private Annotations Check 1");
+		for (var i=2;i<annotationArray.length;i++){
+			var obj = annotationArray[i];
+			//alert("UID Logged In / UID of Annotation: " + drupal_uid + "/"+ obj.uid );			
+			if (obj.uid == drupal_uid){
+				//alert("Showing My Private Annotations Check 2");
+				drawPolygon(obj.text, obj.geom);
+			}
+		}
+	}
+	//display the selected annotation
+	else {
+		var obj = annotationArray[index];
+		drawPolygon(obj.text, obj.geom);
+	}
+	
+}
+		
+
+
+//function to instantiate an annotations Object 
+function annotationObject(text, geom, pub, uid){
+	this.text = text;
+	this.geom = geom;
+	this.pub = pub;
+	this.uid = uid;
+}
+
+
+function clearSelectBox(){
+	jQuery('#selectBox').children().remove();
+    
+	//initialize base values
+	jQuery('#selectBox').append('<option value="Public"> Public Annotations </option>');
+   	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
+    
+}
+
 function parseSearchResults(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
 	$("div.status").text("Server Message:" + details);
@@ -98,7 +208,6 @@ function unflagAnnotation(aid){
 }
 
 //function to grab coordinates for text to highlight
-var coords;
 function getHighlightCoordinates(pid, query){
     var newURL = drupal_domain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
       
@@ -107,7 +216,6 @@ function getHighlightCoordinates(pid, query){
                         getHighlightCoordinatesCallback(data);
                         //alert(data);
                       }); 
-    return coords;
 }
 
 
@@ -131,7 +239,7 @@ function getHighlightCoordinatesCallback(retData){
 //added by sfb
 function setupPopControl(){
 	   map.addControl(polyControl);
-	   polyControl.activate();
+	   //polyControl.activate();
 	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
 }
 //Sabina
@@ -150,13 +258,14 @@ function onPopupClose(evt) {
 	//polyControl.unselect(this.feature);
 	//alert(evt);
     document.getElementById('iiv-image-panel').style.cursor = 'move';
-    map.removePopup(popup);
-    popup.destroy();
-    popup = null;
-    polyControl.box.clear();
    
-    map.removeControl(polyControl);
+   
+   //imageLayer.activate();
+   
+    //map.removeControl(polyControl);
+    closePopupAndChangeControls();
     //TODO:set focus back to map so selection doesn't occur again
+    changeBackToImage();
 }
 
 /**
@@ -165,12 +274,22 @@ function onPopupClose(evt) {
  */
 //added by sfb
 function boxNotice(geom) {
-	 document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+	
+	//polyControl.activate();
+    // document.getElementById('map').style.cursor = 'crosshair';
+    // document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
+	
     var feature = new OpenLayers.Feature.Vector(geom, null, {
         strokeColor: "#0033ff",
         strokeOpacity: 0.7,
         strokeWidth: 5
     });
+    // if there is already a popup shown remove it
+    if (popup != null ) {
+	    map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+    }
     featureSelect(feature);
     //sortOutButtons(oDragPanCtrl, false);
 }//boxNotice
@@ -179,8 +298,7 @@ function boxNotice(geom) {
 function drawPolygon(annotationText,geom)
 {
    var pointList = [];
-   var splitPixels=geom.split(",");
-   console.log(splitPixels);   
+   var splitPixels=geom.split(","); 
    for(var i = 0; i < splitPixels.length; i++){
    	   var splitXY=splitPixels[i].split(" ");    	   
    	   var x=(parseInt(splitXY[0]));
@@ -215,6 +333,7 @@ function getAnnotationLayer(){
 }
 
 function clearAnnotationLayer(){
+	
     getAnnotationLayer().destroyFeatures();
 }
 
@@ -227,6 +346,8 @@ function featureSelect(feature) {
     //need to have a minimum selection
     if (feature.geometry.getArea() < 10)
         return;
+
+    
     document.getElementById('iiv-image-panel').style.cursor = 'move';
     /*
     */
@@ -256,26 +377,29 @@ function featureSelect(feature) {
     
     var viewerUI = this;
     var title = "www.islandnewspapers.ca";
+    //TODO: test the input field to ensure text exists
+    //var testField = "if ($('#annotationText').val().length > 0) { return true } else { alert('Please ensure annotation text');}";
     var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "',$('input[name=annotationPublic]:checked').val());";
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
         null,
-        "<div id='popupdiv'><form><strong>Selection from <i>" +
+        "<div id='popupdiv'><strong>Selection from <i>" +
         title +"</i></strong><br/>\n" +
         "Please enter an annotation for the selected information, or<br/>\n" +
         "close this popup if you want to make another selection.<br/><br/>" +
         "<strong>Annotation Text:</strong><br/>" +       
-        "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
-        "<div id='saveData' align='right'"+       
-        	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
+        "<div id='saveData' align='right'>" +
+        "<form name='popform' action='#'>"+ 
+        "<textarea name='annotationText' id='annotationText' cols='42' rows='6' wrap></textarea><br/>" + 
+        "<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
         "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
-        "</div>" + 
+        "</form></div>" + 
         "<br clear=\"left\"/>" +
        // sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
        // parseInt(bounds.getHeight())) +
         "<br clear=\"left\"/>" +
         //"<i>Coming Soon: annotate this selection!</i>" +
-        "</form></div>", 
+        "</div>", 
         null, true, onPopupClose);
        feature.popup = popup;
     map.addPopup(popup);
@@ -289,7 +413,16 @@ function saveAnnotation(annotationText,coordinates, publicOn){
 	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
 	//alert(coordinates);	
 	var pid=viewer.currentPid();	
-	addAnnotation(pid,annotationText,coordinates,publicOn);	
+	addAnnotation(pid,annotationText,coordinates,publicOn);
+	// sfb, added to close popup box
+	//if (popup != null) {
+	//	map.removePopup(popup);
+	//	popup.destroy();
+	//	popup = null;
+	//}
+	closePopupAndChangeControls();
+    //TODO:set focus back to map so selection doesn't occur again
+    changeBackToImage();
 }
 
 function drawBox(obj){
@@ -372,4 +505,38 @@ function checkStatusAndSearch(pid,query){
 		    });
 		  });
 	  }
+}
+function changeBackToImage(){
+	// deactivate controls
+	for( var i=0; i<map.controls.length; i++ ) {
+		map.controls[i].deactivate();
+	} 
+	
+	//set back to navigation control
+	map.getControl("OpenLayers.Control.Navigation_4").activate();
+	//map.getControl("OpenLayers.Control.MouseDefaults_4").activate();
+	//map.getControl("OpenLayers.Control.KeyboardDefaults_5").activate();
+}
+
+function closePopupAndChangeControls(){
+    if (polyControl != null ) {
+    	if (polyControl.box != null){
+    		polyControl.box.clear(); 
+        	polyControl.deactivate();
+    	}
+    }
+    if (mulpolyControl != null ) {
+    	//	mulpolyControl.box.clear(); 
+    	 var mulpolyControlLayer = this.map.getLayersByName("Polygon Layer");
+    	// mulpolyControlLayer.destroyFeatures();
+    	mulpolyControl.deactivate();
+    	//clearAnnotationLayer();
+    }
+
+    
+	if (popup != null ) {
+	    map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+    }
 }

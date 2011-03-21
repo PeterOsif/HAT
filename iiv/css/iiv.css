@@ -35,6 +35,7 @@
   width: 100%;
   border-bottom: 1px solid #ccc;
   z-index: 200;
+  background-color: #e0e0e0;
 
 }
 
@@ -161,6 +162,8 @@
   height: 5px;
 }
 
+
+
 .iiv-slider.ui-slider-horizontal .ui-slider-handle {
   top: -4px;
   height: 11px;
@@ -235,11 +238,11 @@ button.highlight {
 }
 /*Sab*/
 button.polygon{
-    margin-left: 275px;
+    margin-left: 70px;
 }
 /*Sab*/
 button.poly{
-    margin-left: 310px;
+    margin-left: 105px;
 }
 /*HAT Project Pete*/
 input.text {
@@ -264,6 +267,12 @@ button.buttonHideAnnotation{
 /*Mark*/
 button.buttonFlagAnnotation{
     margin-left: 35px;
+}
+
+/*Mark*/
+#selectBox{
+  	width : 190px; /* Resize Width */
+	height: 25px;	
 }
 
 button.search{
