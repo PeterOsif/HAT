@@ -600,6 +600,13 @@ iiv.Viewer.UI = new iiv.Class({
       	viewerUI.selectBoxOnChange();
      	  
        });
+
+      //Pete, Added onkeypress function. Please note, viewerUI uses JQuery functions only!
+      viewerUI.SearchBar.keyup(function(e){
+          if(e.keyCode == 13) {
+            viewerUI.searchToggle();
+          }
+      });
   },
 
   printPage: function() {
@@ -718,7 +725,7 @@ iiv.Viewer.UI = new iiv.Class({
 	   //draw the annotation
        showAnnotation(selectedItem);
        
-   	}
+  }
 
 });
 
