@@ -99,7 +99,7 @@ function iiv_annotation_flag_settings_form(){
 	'#size' => 25,
 	'#weight' => -1,
 	'#description' => t('Vertical rate for highlighting. (treat as percent)'),
-	'#default_value' => (double)(variable_get('iiv_highlighting_vertical', ''))*100,
+	'#default_value' => (double)(variable_get('iiv_highlighting_vertical', ''))*100+100,
 
   ); 
   
@@ -109,7 +109,7 @@ function iiv_annotation_flag_settings_form(){
 	'#size' => 25,
 	'#weight' => -1,
 	'#description' => t('Horizontal rate for highlighting.(treat as percent)'),
-	'#default_value' => (double)(variable_get('iiv_highlighting_horizontal', ''))*100,
+	'#default_value' => (double)(variable_get('iiv_highlighting_horizontal', ''))*100+100,
   );
     $form['wrapper']['url'] = array(
     '#type' => 'textfield',
@@ -131,8 +131,8 @@ function iiv_annotation_flag_settings_form(){
 } 
 function iiv_highlighting_submit($form) {
 	variable_set('iiv_highlighting_fedora_url',$form['wrapper']['url']['#value']);
-	variable_set('iiv_highlighting_horizontal',(double)($form['wrapper']['horizontal']['#value'])/100);
-	variable_set('iiv_highlighting_vertical',(double)($form['wrapper']['vertical']['#value'])/100);
+	variable_set('iiv_highlighting_horizontal',(double)(($form['wrapper']['horizontal']['#value'])-100)/100);
+	variable_set('iiv_highlighting_vertical',(double)(($form['wrapper']['vertical']['#value'])-100)/100);
 }
 
 /*
