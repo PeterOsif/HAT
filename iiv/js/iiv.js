@@ -68,6 +68,9 @@ iiv.Viewer = new iiv.Class({
       viewer.initializeMap();
       viewer.ui.initializeUI();
       
+      //alert("PID" + viewer.currentPid() );  //test code
+      queryForAnnotation(viewer.currentPid());
+      
       if(solr_search_term.length > 0){
          //call search for highlight terms
         getHighlightCoordinates(viewer.currentPid(), solr_search_term);

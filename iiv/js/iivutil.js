@@ -22,7 +22,7 @@ function annotationInit(pid){
 
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
-	//alert("IIVUtil.js - queryForAnnotation");
+	//alert("IIVUtil.js - queryForAnnotation");  //test code
 	
 	var baseURL= drupal_domain + "/islandora/annotation/select";
 	var newURL = baseURL +'/'+ pid + '/?callback=?' ;
