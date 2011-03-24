@@ -223,6 +223,13 @@ button.page-next{
   float: left;
 }
 
+/*Pete - Controlset for search*/
+.iiv-controlset.searchControlSet {
+  position: relative;
+  float: right;
+
+}
+
 button.text {
   margin-left: 176px;
 }
@@ -244,10 +251,6 @@ button.polygon{
 button.poly{
     margin-left: 105px;
 }
-/*HAT Project Pete*/
-input.text {
-    margin-left: 500px;
-}
 
 /*Hat Project Pete*/
 button.annotation{
@@ -256,7 +259,11 @@ button.annotation{
 
 /*HAT Project Pete*/
 input.text {
-    margin-left: 700px;
+  margin-left: 20px;
+}
+
+button.search{
+  margin-left: -15px;
 }
 
 /*Mark*/
@@ -275,9 +282,7 @@ button.buttonFlagAnnotation{
 	height: 25px;	
 }
 
-button.search{
-    margin-left: 835px;
-}
+
 
 /* print dialog */
 .iiv-print-dialog {
