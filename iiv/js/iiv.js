@@ -67,6 +67,9 @@ iiv.Viewer = new iiv.Class({
       viewer.loadText();
       viewer.initializeMap();
       viewer.ui.initializeUI();
+      
+      //call search for highlight terms
+      getHighlightCoordinates(viewer.currentPid(), solr_search_term);
     };
   },
 
@@ -677,7 +680,6 @@ iiv.Viewer.UI = new iiv.Class({
   },
 
   highlightToggle: function(){
-  	  console.log("here is the code to highlight");
   	  toggleHighlightLayer(); 	  
   },
 

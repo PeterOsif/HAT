@@ -19,6 +19,7 @@
     <script>
     var drupal_uid = '${param.drupal_uid}';
     var drupal_domain = '${param.drupal_domain}';
+    var solr_search_term = '${param.search}';
     var viewer;
     document.write('<div class="iiv"></div>');
     $(document).ready(function() {
