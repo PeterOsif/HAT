@@ -71,6 +71,8 @@ iiv.Viewer = new iiv.Class({
       if(solr_search_term.length > 0){
          //call search for highlight terms
         getHighlightCoordinates(viewer.currentPid(), solr_search_term);
+      
+        
       }
     };
   },
@@ -706,7 +708,7 @@ iiv.Viewer.UI = new iiv.Class({
   // Mark Annotation Hide / Show
   hideAnnotationToggle: function(){
        //alert("Hook for annotations Hide / Show");
-       queryForAnnotation(this.viewer.currentPid());
+       //queryForAnnotation(this.viewer.currentPid());
 
    },
    // Mark Annotations Flagging
