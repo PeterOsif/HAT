@@ -404,9 +404,9 @@ iiv.Viewer.UI = new iiv.Class({
     return controls;
   },
 
-    //Pete -->
+    //Pete added search ControlSet -->
   createSearchControls: function(toolbar){
-    var controls = this.createControlSet(toolbar, 'other');
+    var controls = this.createControlSet(toolbar, 'searchControlSet');
     this.SearchBar = this.createSearchBar(controls, 'text', 'Search Bar');
     //add the search button
     this.buttonSearch = this.createButton(controls, 'search', 'Search', 'ui-icon-search');
