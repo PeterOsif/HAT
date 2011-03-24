@@ -68,9 +68,14 @@ iiv.Viewer = new iiv.Class({
       viewer.initializeMap();
       viewer.ui.initializeUI();
       
+      //alert("PID" + viewer.currentPid() );  //test code
+      queryForAnnotation(viewer.currentPid());
+      
       if(solr_search_term.length > 0){
          //call search for highlight terms
         getHighlightCoordinates(viewer.currentPid(), solr_search_term);
+      
+        
       }
     };
   },
@@ -706,7 +711,7 @@ iiv.Viewer.UI = new iiv.Class({
   // Mark Annotation Hide / Show
   hideAnnotationToggle: function(){
        //alert("Hook for annotations Hide / Show");
-       queryForAnnotation(this.viewer.currentPid());
+       //queryForAnnotation(this.viewer.currentPid());
 
    },
    // Mark Annotations Flagging
