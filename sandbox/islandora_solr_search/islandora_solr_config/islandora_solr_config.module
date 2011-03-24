@@ -1,0 +1,50 @@
+<?php
+
+// $Id$
+
+
+/**
+ * @file
+ * Configuration module for islandora_solr_search.module
+ */
+
+
+/**
+ * Implementation of hook_alter_form.
+ * Adds this module's configuration options to islandora_solr_search's configuration page.
+ */
+
+function islandora_solr_config_form_islandora_solr_admin_settings_alter(&$form, &$form_state) {
+  $module   = 'islandora_solr_config';
+  $file     = 'IslandoraSolrResultsTable.inc';
+  $class    = 'IslandoraSolrResultsTable';
+  $method   = 'displayResults';
+  $config_options = $form['islandora_solr_config_options']['#options'];
+  $config_options["${module}~${file}~${class}~${method}"] = 'Table';
+  $form['islandora_solr_config_options']['#options'] = $config_options;
+}
+
+
+/**
+ * Implementation of hook_help()
+ */
+
+function islandora_solr_config_help($path, $arg) {
+
+  switch ($path) {
+    case 'admin/help#islandora_solr_config':
+      return t("When 'Sample Solr Configuration Settings' is selected from the configuration drop-down in the<br />
+        !page the following settings will be used.
+        <ul>
+        <li>Module - islandora_solr_config</l1>
+        <li>File - IslandoraSolrResultsTable.inc</l1>
+        <li>Class - IslandoraSolrResultsTable</l1>
+        <li>Method - displayResults</l1>
+        </ul>
+        ", array('!page' => l("Islandora_solr_search configuration page", 'admin/settings/islandora_solr_search'),)
+
+
+      );
+  }
+}
+

@@ -1,0 +1,15 @@
+table.flagged{
+	width:100%;
+}
+
+table.flagged th{
+	text-decoration:underline;
+}
+
+tr.flag_row0{
+	background-color:#BDEDFF;
+}
+
+tr.flag_row1{
+	background-color:#FFFFFF;
+}

@@ -1,0 +1,302 @@
+/* general ui settings */
+
+.iiv-ui {
+  width: auto;
+  height: 100%;
+  position: relative; /* ie needs this */
+  border: 1px solid #ccc;
+  font-size: 11px;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  background-color: #e0e0e0;
+  font-family: Verdana,Arial,sans-serif;
+}
+
+.iiv-clear {
+  clear: both;
+}
+
+.iiv-toolbar {
+  position: absolute;
+  margin: 0;
+  height: 44px;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  z-index: 200;
+
+}
+
+.iiv-annToolbar {
+  position: absolute;
+  margin: 0;
+  height: 44px;
+  top: 44px;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  z-index: 200;
+  background-color: #e0e0e0;
+
+}
+
+.iiv-annotation-pane {
+    position: absolute;
+    margin: 0;
+    height: 65px;
+    border-bottom: 1px solid #ccc;
+    z-index: 200;
+}
+
+.iiv-controlset {
+  position: absolute;
+  width: 150px;
+  top: 6px;
+}
+
+.iiv-toolbar button {
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+/*Hat Project - Mark */
+.iiv-annToolbar button {
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+/*Hat Project - Pete*/
+.iiv-toolbar input {
+    position: absolute;
+    height: 32px;
+    width: 130px;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.iiv-canvas {
+  position: absolute;
+  margin-top: 45px;
+  width: 100%;
+  height: 99%;
+  z-index: 100;
+}
+
+.iiv-image-panel {
+  position: absolute;
+  width: 100%;
+  height: 99%;
+}
+
+.iiv-image-panel.narrow {
+  width: 50%;
+}
+
+.iiv-text-panel {
+  display: none;
+  position: absolute;
+  margin-left: 51%;
+  width: 50%;
+  height: 100%
+}
+
+.iiv-text-container {
+  margin: 0px 9px 0px 9px;
+  position: relative;
+  overflow: auto;
+  height: 95.4%;
+  padding-right:10px;
+}
+
+.ui-state-default .ui-icon.iiv-icon-text {
+  background-image: url('../images/iiv-icons.png');
+  background-position-x: 0px;
+  background-position-y: 0px;
+}
+
+.ui-state-hover .ui-icon.iiv-icon-text, .ui-state-active .ui-icon.iiv-icon-text {
+  background-image: url('../images/iiv-icons.png');
+  background-position-x: 0;
+  background-position-y: -16px;
+}
+
+/* slider settings */
+.iiv-slider-container {
+  position: absolute;
+  top: 38px;
+  margin-left: -1px;
+  width: 148px;
+  height: 44px;
+  border: 1px solid #ccc;
+  display: none;
+  background-color: #e0e0e0;
+}
+
+.iiv-slider {
+  width: 50px;
+  margin-left: 52px;
+}
+
+.iiv-slider-zoom {
+  width: 50px;
+  margin-left: 52px;
+}
+
+.iiv-slider-page {
+  width: 100px;
+  margin-left: 25px;
+}
+
+.iiv-slider.ui-slider-horizontal {
+  top: 15px;
+  height: 5px;
+}
+
+.iiv-slider-page.ui-slider-horizontal {
+  top: 15px;
+  height: 5px;
+}
+
+
+
+.iiv-slider.ui-slider-horizontal .ui-slider-handle {
+  top: -4px;
+  height: 11px;
+  width: 11px;
+  overflow: hidden; /* ie6 needs this */
+}
+
+.iiv-slider-page.ui-slider-horizontal .ui-slider-handle {
+  top: -4px;
+  height: 11px;
+  width: 11px;
+  overflow: hidden; /* ie6 needs this */
+}
+
+/* zoom controls */
+.iiv-controlset.zoom {
+  margin-left: 0px;
+}
+
+button.zoom-out {
+  margin-left: 11px;
+}
+
+button.zoom-in {
+  margin-left: 110px;
+}
+
+button.zoom-max {
+  margin-left: 143px;
+}
+
+/* page number controls */
+.iiv-controlset.page {
+  margin-left: 40%;
+}
+
+button.page-previous {
+  margin-left: 1px;
+}
+
+button.page-next{
+  margin-left: 118px;
+}
+
+.iiv-page-number {
+  position: absolute;
+  margin-left: 38px;
+  width: 72px;
+  text-align: center;
+  padding-top: 10px;
+  color: rgb(85, 85, 85);
+}
+
+/* other controls */
+.iiv-controlset.other {
+  position: relative;
+  float: left;
+}
+
+/*Pete - Controlset for search*/
+.iiv-controlset.searchControlSet {
+  position: relative;
+  float: right;
+
+}
+
+button.text {
+  margin-left: 176px;
+}
+
+
+button.print {
+  margin-left: 209px;
+}
+
+/*HAT Project Mark */
+button.highlight {
+  margin-left: 242px;
+}
+/*Sab*/
+button.polygon{
+    margin-left: 70px;
+}
+/*Sab*/
+button.poly{
+    margin-left: 105px;
+}
+
+/*Hat Project Pete*/
+button.annotation{
+    margin-left: 640px;
+}
+
+/*HAT Project Pete*/
+input.text {
+  margin-left: 20px;
+}
+
+button.search{
+  margin-left: -15px;
+}
+
+/*Mark*/
+button.buttonHideAnnotation{
+
+}
+
+/*Mark*/
+button.buttonFlagAnnotation{
+    margin-left: 35px;
+}
+
+/*Mark*/
+#selectBox{
+  	width : 190px; /* Resize Width */
+	height: 25px;	
+}
+
+/*Jeremy*/
+
+
+
+
+/* print dialog */
+.iiv-print-dialog {
+  display: none;
+}
+
+/* text output */
+pre
+{
+padding-top: 5px;
+white-space: pre-wrap; /* CSS2.1 compliant */
+white-space: -moz-pre-wrap; /* Mozilla-based browsers */
+white-space: o-pre-wrap; /* Opera 7+ */
+}

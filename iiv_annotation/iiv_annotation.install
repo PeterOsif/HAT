@@ -1,0 +1,124 @@
+<?
+/*
+ *
+ *	Implementation of hook_schema()
+ */
+function iiv_annotation_schema() {
+  $schema = array();
+  //the description field for each table / field should clear up its purpose
+  $schema['annotations'] = array(
+    'description' => t('Table to store all annotations'),
+    
+    'fields' => array(
+	  'aid' => array(
+	  	'description' => t('Counter for each annotation entry'),
+	    'type' => 'serial',
+	    'size' => 'normal',
+	    'unsigned' => TRUE,
+	    'not null' => TRUE
+	  ),
+      'pid' => array(
+        'description' => t('The PID of the fedora object being annotated'),
+        'type' => 'varchar',
+        'length' => 1024,
+        'not null' => TRUE
+      ),
+      'uid' => array(
+        'description' => t('User ID of annotation author'),
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+		'default' => 0
+      ),
+      'annotation_text' => array(
+      	'description' => t('Text body of annotation'),
+        'type' => 'varchar',
+		'length' => 1024,
+		'not null' => TRUE
+      ),
+      'annotation_location_size' => array(
+      	'description' => t('String of annotation size and location'),
+        'type' => 'varchar',
+		'length' => 1024,
+		'not null' => TRUE
+      ),
+      'public' => array(
+      	'description' => t('Boolean indicating whether annotation is public or private'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0
+      ),
+      'timestamp' => array( 
+        'description' => t('Unix timestamp of annotation creation time'),
+        'type' => 'int',
+        'not null' => true,
+      ),
+    ),
+    'indexes' => array(
+      'pid' => array('pid'),
+      'uid' => array('uid'),
+    ),
+    'primary key' => array('aid'),
+  );
+
+  $schema['annotation_flags'] = array(
+  	'description' => t('Table to store flagged annotations'),
+    'fields' => array(
+      'aid' => array(
+      	'description' => t('ID of flagged annotation'),
+        'type' => 'int',
+        'size' => 'normal',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'ruid' => array(
+      	'description' => 'User ID of reporter',
+		'type' => 'int',
+		'size' => 'normal',
+		'unsigned' => TRUE,
+		'not null' => TRUE,
+      ),
+      'flagger_ip' => array(
+        'description' => t('Log the IP of anonymous users'),
+        'type' => 'varchar',
+        'length' => 15,
+        'not null' => FALSE     	
+      ),
+      'timestamp' => array(
+      	'description' => t('UNIX timestamp of flag time'),
+        'type' => 'int',
+        'not null' => TRUE
+      )
+    ),
+    'indexes' => array(
+    	'aid_flag' => array('aid')
+    ),
+  );       
+       
+  return $schema;
+}
+
+/*
+ *
+ *	Implementation of hook_install()
+ */
+
+function iiv_annotation_install(){
+	drupal_install_schema('iiv_annotation');
+	
+	//Set the Drupal variable iiv_annotation_id to its current value, 
+	//	or a new one if it is not set
+	variable_set('iiv_annotation_id', variable_get('iiv_annotation_id', sha1(time() . mt_rand())));
+}
+
+/*
+ *
+ *	Implementation of hook_uninstall()
+ */
+
+function iiv_annotation_uninstall(){
+	drupal_uninstall_schema('iiv_annotation');
+}

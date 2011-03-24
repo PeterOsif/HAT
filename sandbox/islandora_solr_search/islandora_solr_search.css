@@ -1,0 +1,73 @@
+/* $Id: */
+
+form#islandora-solr-search-block-form select#edit-type1,
+form#islandora-solr-search-block-form select#edit-type2,
+form#islandora-solr-search-block-form select#edit-type3
+{
+  width:100%;
+}
+
+form#islandora-solr-search-block-form input#edit-fedora-terms1,
+form#islandora-solr-search-block-form input#edit-fedora-terms2,
+form#islandora-solr-search-block-form input#edit-fedora-terms3,
+form#islandora-solr-simple-search-form input#edit-islandora-simple-search-query
+{
+  width:96%;
+}
+
+.islandora_solr_search_query_wrap,
+.islandora_solr_search_filter_wrap,
+.islandora_solr_search_facet_wrap
+{
+}
+
+.islandora_solr_search_facet_name,
+.islandora_solr_search_facet_title
+{
+  font-weight:bold;
+}
+
+.islandora_solr_search_facet_wrap ul li
+{
+  font-size:90%;
+  line-height:1.3em;
+}
+
+img.islandora_solr_add_remove_link
+{
+  vertical-align: middle;
+}
+
+.islandora_solr_search_filter_wrap ul.islandora_solr_search_filter_list,
+.islandora_solr_search_query_wrap ul.islandora_solr_search_query_list
+{
+  padding: 0;
+}
+.islandora_solr_search_filter_wrap ul.islandora_solr_search_filter_list li,
+.islandora_solr_search_query_wrap ul.islandora_solr_search_query_list li
+{
+  list-style: none inside none;
+  padding: 0;
+  margin: 0;
+  background-image: none;
+}
+table.islandora_solr_search_results_table
+{
+  font-size: 80%;
+}
+table.islandora_solr_search_results_table tr
+{
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+table.islandora_solr_search_results_table tr td
+{
+  padding: 0 2px;
+}
+
+.islandora_solr_search_facet {
+}
+
+.islandora_solr_search_facet .plusminus {
+  float:right;
+}
