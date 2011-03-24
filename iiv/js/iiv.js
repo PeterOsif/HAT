@@ -67,6 +67,11 @@ iiv.Viewer = new iiv.Class({
       viewer.loadText();
       viewer.initializeMap();
       viewer.ui.initializeUI();
+      
+      if(solr_search_term.length > 0){
+         //call search for highlight terms
+        getHighlightCoordinates(viewer.currentPid(), solr_search_term);
+      }
     };
   },
 
@@ -354,7 +359,7 @@ iiv.Viewer.UI = new iiv.Class({
 
 
 
-    var canvas = this.createDiv(ui, 'iiv-canvas'); //Semicolon added Mark
+    var canvas = this.createDiv(ui, 'iiv-canvas'); 
     this.textPanel = this.createDiv(canvas, 'iiv-text-panel');
     this.textContainer = this.createDiv(this.textPanel, 'iiv-text-container');
 
@@ -404,7 +409,7 @@ iiv.Viewer.UI = new iiv.Class({
     return controls;
   },
 
-    //Pete added search ControlSet -->
+    //Pete -->
   createSearchControls: function(toolbar){
     var controls = this.createControlSet(toolbar, 'searchControlSet');
     this.SearchBar = this.createSearchBar(controls, 'text', 'Search Bar');
@@ -415,7 +420,7 @@ iiv.Viewer.UI = new iiv.Class({
 
   //Mark  -->
   createSelectControls: function(annToolbar){
-    var annControls = this.createControlSet(annToolbar, 'selectBar');
+    var annControls = this.createDiv(annToolbar, 'selectBar');
     
     //selectBar populated with annotations
     this.selectBar = this.createSelectBar(annControls, 'select', 'Select Box');   
@@ -677,7 +682,6 @@ iiv.Viewer.UI = new iiv.Class({
   },
 
   highlightToggle: function(){
-  	  console.log("here is the code to highlight");
   	  toggleHighlightLayer(); 	  
   },
 

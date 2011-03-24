@@ -8,128 +8,20 @@
  */
 var searchStatus = "";
 var alertTimerId = 0;
-var annotationArray = new Array();
-var popup = null;
-
-//Parent function to be called to called by other events to set up everything for the annotations display
-function annotationInit(pid){
-	clearSelectBox();
-	//TODO Reactive line below when functionaly has been extended to deal with an empty or nonexistant layer
-	//clearAnnotationLayer();
-	queryForAnnotation(pid);
-	
-}
 
 // function to select annotations, calls module to select the drupal database
 function queryForAnnotation(pid){
-	var baseURL= drupal_domain + "/islandora/annotation/select";
-	var newURL = baseURL +'/'+ pid + '/?callback=?' ;
+	var baseURL="/islandora/annotation/select";
+	var newURL = baseURL +'/'+ pid ;
 
-	//call delete function
-    $.getJSON(newURL, function (data){
-                        queryForAnnotationCallback(data);
-                        //alert(data);
-                      });
-    
+	var html = $.ajax({
+		  url: newURL,
+		  async: false
+		 }).responseText;
+	parseSearchResults(html);
 	//console.log(html);
 	//document.data.myData.value = "Search Worked";
-	//alert(html); //test code
 }
-
-function queryForAnnotationCallback(data){
-
-	//ensure the selectBox is reset
-	clearSelectBox();
-	
-	//counter, offset to allow for the two entries of public and my annotation in selectBox
-	var counter = 2;
-	
-	for (var i=0;i<data.length;i++){
-		var obj = data[i];
-		
-		//grab the date for selectBox and format it to DD/MM/YYYY
-		var date = new Date(obj.timestamp * 1000);
-		var day = date.getDate();
-		var month = date.getMonth() + 1;
-		var year = date.getFullYear();
-		
-		var dateDisplay = "" + day + "/" + month + "/" + year;
-					
-		//grab the first 20 characters in the annotation to help with selectionBox display
-		var annDisplay = obj.annotation_text.substr(0,20);
-		
-		var display = dateDisplay + " - " + annDisplay;
-		
-		
-		//build the values in the selectBox
-		jQuery('#selectBox').append('<option value="' + counter + '">' + display + '  </option>');
-		
-		//add the value to the annotationArray so it can be called later
-		//alert(obj.annotation_text + "   " + obj.annotation_text);
-		//TODO JSON public key probably needs to be changed from "Public" as that word might be protected
-		//TODO this new key would go in the next line where the 1 is hard coded
-		var tempAnnotation = new annotationObject(obj.annotation_text, obj.annotation_location_size, 1, obj.uid);
-		annotationArray[counter] = tempAnnotation;
-		counter++;
-	}		
-	
-}
-function showAnnotation(index){
-	//clear all annotations
-	clearAnnotationLayer();
-	//check if they want to view all public annotations
-	if (index == "Public" ){
-		//alert("Showing Public Annotations Check 1");
-		for (var i=2;i<annotationArray.length;i++){
-			var obj = annotationArray[i];
-			//Show all public annotations
-			//alert("obj.pub " + obj.pub );
-			if (obj.pub == "1"){
-				//alert("Showing Public Annotations Check 3");
-				drawPolygon(obj.text, obj.geom);
-			}
-		}
-	}
-	//display a persons private annotations
-	else if (index == "Private"){
-		//alert("Showing Private Annotations Check 1");
-		for (var i=2;i<annotationArray.length;i++){
-			var obj = annotationArray[i];
-			//alert("UID Logged In / UID of Annotation: " + drupal_uid + "/"+ obj.uid );			
-			if (obj.uid == drupal_uid){
-				//alert("Showing My Private Annotations Check 2");
-				drawPolygon(obj.text, obj.geom);
-			}
-		}
-	}
-	//display the selected annotation
-	else {
-		var obj = annotationArray[index];
-		drawPolygon(obj.text, obj.geom);
-	}
-	
-}
-		
-
-
-//function to instantiate an annotations Object 
-function annotationObject(text, geom, pub, uid){
-	this.text = text;
-	this.geom = geom;
-	this.pub = pub;
-	this.uid = uid;
-}
-
-
-function clearSelectBox(){
-	jQuery('#selectBox').children().remove();
-    
-	//initialize base values
-	jQuery('#selectBox').append('<option value="Public"> Public Annotations </option>');
-   	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
-    
-}
-
 function parseSearchResults(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
 	$("div.status").text("Server Message:" + details);
@@ -143,16 +35,16 @@ function updateStatusOnPage(details){
 function deleteAnnotation(aid){
 	var baseURL="/islandora/annotation/delete";
 	// call query function 
-	var newURL = baseURL +'/'+ aid +'/json?callback=?';
+	var newURL = baseURL +'/'+ aid +'/json';
+	// perform call and capture result
+	var html = $.ajax({
+	  url: newURL,
+	  async: false
+	 }).responseText;
+	console.log(html);
+	updateStatusOnPage(html);
 	
-	//call delete function
-    $.getJSON(newURL, function (data){
-                        deleteAnnotationCallback(data);
-                        //alert(data);
-                      });
-}
-
-function deleteAnnotationCallback(data){
+	//document.data.myData.value = "Delete Worked " +html;
 }
 
 // function to add annotations, call module to insert in the drupal database
@@ -161,9 +53,8 @@ function addAnnotation(pid,annotationText,annotationLocation,private){
 	//var baseURL="http://192.168.56.101/islandora/annotation/insert";
 	//messages success/error
 	
-	var escapedText = escape(annotationText);
-	var newURL = drupal_domain + "/islandora/annotation/insert/";
-	newURL += pid +'/' + escapedText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
+	var newURL = drupalDomain + "/islandora/annotation/insert/";
+	newURL += pid +'/' + annotationText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
       
     //call query function
     $.getJSON(newURL, function (data){
@@ -179,34 +70,41 @@ function addAnnotationCallback(data){
 }
 //function to select annotations, calls module to select the drupal database
 function flagAnnotation(aid){
-	var baseURL= drupal_domain + "/islandora/annotation/flag";
-	var newURL = baseURL +'/'+ aid + '/?callback=?';
+	var baseURL="/islandora/annotation/flag";
+	var newURL = baseURL +'/'+ aid ;
 	
-	//call query function
-    $.getJSON(newURL, function (data){
-                        flagAnnotationCallback(data);
-                        //alert(data);
-                      });
+	// call query function and parse JSON
+	var formText = null;
+	var output ="";
+	var html = $.ajax({
+		  url: newURL,
+		  async: false
+		 }).responseText;
+	console.log(html);
+	 //document.data.myData.value = "Flag Worked " + html;
+	updateStatusOnPage(html);
 	
 }
-
-function flagAnnotationCallback(data){
-}
-
 //function to select annotations, calls module to select the drupal database
 function unflagAnnotation(aid){
-	var baseURL= drupal_domain + "/islandora/annotation/unflag";
-	var newURL = baseURL +'/'+ aid +'/?callback=?';
+	var baseURL="/islandora/annotation/unflag";
+	var newURL = baseURL +'/'+ aid ;
 	
-	//call query function
-    $.getJSON(newURL, function (data){
-                        unflagAnnotation(data);
-                        //alert(data);
-                      });
+	// call query function and parse JSON
+	var formText = null;
+	var output ="";
+	var html = $.ajax({
+		  url: newURL,
+		  async: false
+		 }).responseText;
+	console.log(html);
+	updateStatusOnPage(html);
+	//document.data.myData.value = "UnFlag Worked " + html;
 
 }
 
 //function to grab coordinates for text to highlight
+var coords;
 function getHighlightCoordinates(pid, query){
     var newURL = drupal_domain + "/islandora/annotation/highlight/" + pid + "/" + query + "/?callback=?";
       
@@ -215,6 +113,7 @@ function getHighlightCoordinates(pid, query){
                         getHighlightCoordinatesCallback(data);
                         //alert(data);
                       }); 
+    return coords;
 }
 
 
@@ -238,7 +137,7 @@ function getHighlightCoordinatesCallback(retData){
 //added by sfb
 function setupPopControl(){
 	   map.addControl(polyControl);
-	   //polyControl.activate();
+	   polyControl.activate();
 	   document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
 }
 //Sabina
@@ -257,14 +156,13 @@ function onPopupClose(evt) {
 	//polyControl.unselect(this.feature);
 	//alert(evt);
     document.getElementById('iiv-image-panel').style.cursor = 'move';
+    map.removePopup(popup);
+    popup.destroy();
+    popup = null;
+    polyControl.box.clear();
    
-   
-   //imageLayer.activate();
-   
-    //map.removeControl(polyControl);
-    closePopupAndChangeControls();
+    map.removeControl(polyControl);
     //TODO:set focus back to map so selection doesn't occur again
-    changeBackToImage();
 }
 
 /**
@@ -273,42 +171,22 @@ function onPopupClose(evt) {
  */
 //added by sfb
 function boxNotice(geom) {
-	
-	//polyControl.activate();
-    // document.getElementById('map').style.cursor = 'crosshair';
-    // document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
-	
+	 document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
     var feature = new OpenLayers.Feature.Vector(geom, null, {
         strokeColor: "#0033ff",
         strokeOpacity: 0.7,
         strokeWidth: 5
     });
-    // if there is already a popup shown remove it
-    if (popup != null ) {
-	    map.removePopup(popup);
-	    popup.destroy();
-	    popup = null;
-    }
     featureSelect(feature);
     //sortOutButtons(oDragPanCtrl, false);
 }//boxNotice
 
 //Sabina
-function toggleHighlightLayer(){
-	var highlightLayer = getHighlightLayer();
-	if(highlightLayer!==null){
-		if(highlightLayer.getVisibility()===true){		
-			highlightLayer.setVisibility(false);
-		}
-		else{
-			highlightLayer.setVisibility(true);
-		}
-	}
-}
 function drawPolygon(annotationText,geom)
 {
    var pointList = [];
-   var splitPixels=geom.split(","); 
+   var splitPixels=geom.split(",");
+   console.log(splitPixels);   
    for(var i = 0; i < splitPixels.length; i++){
    	   var splitXY=splitPixels[i].split(" ");    	   
    	   var x=(parseInt(splitXY[0]));
@@ -323,30 +201,7 @@ function drawPolygon(annotationText,geom)
 	var polygonFeature = new OpenLayers.Feature.Vector(linearRing, null); 
 	var annotationLayer = getAnnotationLayer();                     
 	annotationLayer.addFeatures([polygonFeature]);      
-	//alert(annotationLayer.getVisibility()); 
-	selectedControl=polygonFeature;
-	var popupPosition =   polygonFeature.geometry.getBounds().getCenterLonLat();//lonlat
-	var len=annotationText.length; 
-	var opacity =0.8;    
-	popup = new OpenLayers.Popup.Anchored("ID", //id 
-				     popupPosition,
-				     new OpenLayers.Size(len*10,len*3),//size w*h                                     
-				     "<font color='green'>"+annotationText+"</font>",//HTML content
-				     null,//anchor
-				     true,//function to be called on closeBox Click
-				     onAnnotationPopupClose);
-	
-	annotationLayer.popup=popup;
-	popup.setOpacity(opacity);       
-	annotationLayer.addFeatures([polygonFeature]);         
-	map.addPopup(popup);  
-}
-function onAnnotationPopupClose(evt) {   
-    // alert(evt);      
-    document.getElementById('iiv-image-panel').style.cursor = 'move';
-    map.removePopup(this);
-    selectedControl.destroy();  
-    popup=null;
+	//alert(annotationLayer.getVisibility());      
 }
   
 function getAnnotationLayer(){
@@ -366,7 +221,6 @@ function getAnnotationLayer(){
 }
 
 function clearAnnotationLayer(){
-	
     getAnnotationLayer().destroyFeatures();
 }
 
@@ -379,22 +233,32 @@ function featureSelect(feature) {
     //need to have a minimum selection
     if (feature.geometry.getArea() < 10)
         return;
-
-    
     document.getElementById('iiv-image-panel').style.cursor = 'move';
     /*
     */
      selectedFeature = feature;
     var bounds = selectedFeature.geometry.getBounds();
+<<<<<<< HEAD
+    //Sabina
+    var coordinates = selectedFeature.geometry;//Array
+    coordinates = coordinates.components[0].components;
+    
+=======
     var coordinates = selectedFeature.geometry;
     coordinates = coordinates.components[0].components;    
+>>>>>>> a558ad598ff6920575760231e7fd23b88ecd48c9
     var coordsString = "";
     for(i=0; i<coordinates.length; i++){
         var current = coordinates[i];
         coordsString += current.x + " ";
         coordsString += current.y + ",";
     }
+<<<<<<< HEAD
+    coordsString = coordsString.substr(0,coordsString.length -1);
+    alert(coordsString);
+=======
     coordsString = coordsString.substr(0,coordsString.length -1);  
+>>>>>>> a558ad598ff6920575760231e7fd23b88ecd48c9
      //leaving in for now, we may need this sfb
     //var currZoom = map.getZoom();
    // var canvasSize = mapcanvas;
@@ -410,29 +274,30 @@ function featureSelect(feature) {
     
     var viewerUI = this;
     var title = "www.islandnewspapers.ca";
-    //TODO: test the input field to ensure text exists
-    //var testField = "if ($('#annotationText').val().length > 0) { return true } else { alert('Please ensure annotation text');}";
     var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "',$('input[name=annotationPublic]:checked').val());";
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
         null,
-        "<div id='popupdiv'><strong>Selection from <i>" +
+        "<div id='popupdiv'><form><strong>Selection from <i>" +
         title +"</i></strong><br/>\n" +
         "Please enter an annotation for the selected information, or<br/>\n" +
         "close this popup if you want to make another selection.<br/><br/>" +
         "<strong>Annotation Text:</strong><br/>" +       
-        "<div id='saveData' align='right'>" +
-        "<form name='popform' action='#'>"+ 
-        "<textarea name='annotationText' id='annotationText' cols='42' rows='6' wrap></textarea><br/>" + 
-        "<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
+        "<textarea name='annotationText' id='annotationText' cols='40' rows='6' wrap></textarea><br/>" + 
+        "<div id='saveData' align='right'"+       
+        	"<input type='checkbox' name='annotationPublic' id='annotationPublic' value='1' checked /> Public "+
+<<<<<<< HEAD
+        //	"<a href='#' onclick=saveAnnotation($('#annotationText').val(),"+coordinates+",$('input[name=annotationPublic]:checked').val());>Save</a>"+
+=======
+>>>>>>> a558ad598ff6920575760231e7fd23b88ecd48c9
         "<a href='#' onclick=\"" + onClickText + "\">Save</a>"+
-        "</form></div>" + 
+        "</div>" + 
         "<br clear=\"left\"/>" +
        // sortOutSelectedBox(bounds.toArray(), canvasSize, parseInt(bounds.getWidth()),
        // parseInt(bounds.getHeight())) +
         "<br clear=\"left\"/>" +
         //"<i>Coming Soon: annotate this selection!</i>" +
-        "</div>", 
+        "</form></div>", 
         null, true, onPopupClose);
        feature.popup = popup;
     map.addPopup(popup);
@@ -442,20 +307,21 @@ function featureSelect(feature) {
  * 
  */
  
-function saveAnnotation(annotationText,coordinates, publicOn){
+<<<<<<< HEAD
+function saveAnnotation(annotationText,coordinates,publicOn){
+	alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);
+	//var coordinates = selectedFeature.geometry;
+	alert(coordinates);
+	//TODO: finish save logic
+	//TODO:close popup
+	
+=======
+function saveAnnotation(annotationText,publicOn){
 	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
 	//alert(coordinates);	
 	var pid=viewer.currentPid();	
-	addAnnotation(pid,annotationText,coordinates,publicOn);
-	// sfb, added to close popup box
-	//if (popup != null) {
-	//	map.removePopup(popup);
-	//	popup.destroy();
-	//	popup = null;
-	//}
-	closePopupAndChangeControls();
-    //TODO:set focus back to map so selection doesn't occur again
-    changeBackToImage();
+	addAnnotation(pid,annotationText,coordinates,publicOn);	
+>>>>>>> a558ad598ff6920575760231e7fd23b88ecd48c9
 }
 
 function drawBox(obj){
@@ -539,37 +405,5 @@ function checkStatusAndSearch(pid,query){
 		  });
 	  }
 }
-function changeBackToImage(){
-	// deactivate controls
-	for( var i=0; i<map.controls.length; i++ ) {
-		map.controls[i].deactivate();
-	} 
-	
-	//set back to navigation control
-	map.getControl("OpenLayers.Control.Navigation_4").activate();
-	//map.getControl("OpenLayers.Control.MouseDefaults_4").activate();
-	//map.getControl("OpenLayers.Control.KeyboardDefaults_5").activate();
-}
 
-function closePopupAndChangeControls(){
-    if (polyControl != null ) {
-    	if (polyControl.box != null){
-    		polyControl.box.clear(); 
-        	polyControl.deactivate();
-    	}
-    }
-    if (mulpolyControl != null ) {
-    	//	mulpolyControl.box.clear(); 
-    	 var mulpolyControlLayer = this.map.getLayersByName("Polygon Layer");
-    	// mulpolyControlLayer.destroyFeatures();
-    	mulpolyControl.deactivate();
-    	//clearAnnotationLayer();
-    }
 
-    
-	if (popup != null ) {
-	    map.removePopup(popup);
-	    popup.destroy();
-	    popup = null;
-    }
-}

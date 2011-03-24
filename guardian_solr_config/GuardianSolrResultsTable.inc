@@ -35,48 +35,44 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
    *   output manually, should refactor to use drupal forms api.
    */
   //default implementation of display results can be changed in the blocks config
+  //default implementation of display results can be changed in the blocks config
   function displayResults($results){
-    $items = array();
-    $type = "ol";
-    $title = null;
-    $recordStart = $results->response->start;
-    
+      $output.= '<ol start="'.($recordStart + 1).'">';
     global $base_url;
     if(empty($results)) {
       return "no results";
     }
+    
+    //we need to grab the query from the URL so we can
+    //append it to the URL and load it into IIV
+    $query_term='';
+    if(array_key_exists('q',$_GET)){
+        $query = explode("/",$_GET['q']);
+        $query_term = urldecode($query[3]);
+    }
 
     foreach($results->response->docs as $doc) {
-      $rows = array();
-      $row = 0;
-
+      $output .= '<li><table>';
       foreach($doc as $field => $value) {
-        $rows[$row][] = array(
-          'data' => $field,
-          'header' => true,
-        );
+        $output .= '<tr><th>'.$field.'</th>';
         if(is_array($value)) {
           $value = implode(", ",$value);
         }
-        
-        //grab query term from URL
-        if(isset(
 
         if($field=='PID') {
-          $l = l($value,'fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8') . 'text');
-          $rows[$row][] = $l;
+           //attach query to end of URL so that IIV knows the search term
+          $output.='<td><a href="'.$base_url.'/fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'). '?query=' . $query_term . '">'.$value.'</td>';
         }else {
-          $rows[$row][] = $value;
+          $output .= '<td>'.$value.'</td>';
         }
-        $row++;
       }
-      $items[] = theme_table(null,$rows,array('class'=>'islandora_solr_search_results_object'));
+      $output .='</table></li>';
     }
-    $output .= theme_item_list($items, $title, $type, array('class'=>'stuff','start'=>($recordStart + 1)));
+    $output .= '</ol>';
     if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump
       $results_r .= "<pre>Results: ".print_r($results,true)."</pre>";
       $fieldset_r = array(
-        '#title' => t("Raw Results"),                                                                                                                                             
+        '#title' => t("Raw Results"),
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#value' => $results_r,
@@ -87,4 +83,3 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
   }
 
 }
-
