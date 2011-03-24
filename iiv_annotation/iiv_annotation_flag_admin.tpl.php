@@ -3,7 +3,7 @@
   module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_flagging');
   drupal_add_css(drupal_get_path('module','iiv_annotation') . '/css/flag.css');
 
-  $rowsPerPage = 5; 
+  $rowsPerPage = 10; 
   $pageNum = 1;
   if (isset($_GET['page']))
     {
@@ -17,25 +17,24 @@
   $counter = $counterRow['numrows'];
   $maxPage = ceil($counter/$rowsPerPage); //the maxi
 
-
   echo('<center>');
   $self = $_SERVER['REQUEST_URI'];
   $queryCut= 0 - strlen(strstr($self,'?')); //Removes the page of a query from the variable $self
   if ($queryCut != 0){
     $self = substr($self, 0 ,$queryCut); //is ignored if queryCut is 0
   }
-  $nav  = '';
-
+  
+  $nav = "<form name ='listSel'><select name = page>"; // form a list that will
   //create the page table.
   for($page = 1; $page <= $maxPage; $page++)
   {
-    if ($page == $pageNum)
+     if ($page == $pageNum)
     {
-       $nav .= " $page "; // no need to create a link to current page
+        $nav .= '<option value = '. $page. ' selected><a href=\"$self?page=$page\'>'.$page.'</a></option> ';
     }
     else
     {
-       $nav .= " <a href=\"$self?page=$page\">$page</a> ";
+        $nav .= '<option value = '. $page. '><a href=\"$self?page=$page\'>'.$page.'</a></option> ';
     } 
  }
 
@@ -64,6 +63,7 @@
      $next = '&nbsp;'; // we're on the last page, don't print next link
      $last = '&nbsp;'; // nor the last page link
   }
+  $nav .= ("</select><input type = 'submit' value ='Go to Page' /></form>");
   // print the navigation link
   echo $first . $prev . $nav . $next . $last;
   echo ('</center>');
