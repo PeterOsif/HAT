@@ -161,8 +161,9 @@ function addAnnotation(pid,annotationText,annotationLocation,private){
 	//var baseURL="http://192.168.56.101/islandora/annotation/insert";
 	//messages success/error
 	
+	var escapedText = escape(annotationText);
 	var newURL = drupal_domain + "/islandora/annotation/insert/";
-	newURL += pid +'/' + annotationText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
+	newURL += pid +'/' + escapedText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
       
     //call query function
     $.getJSON(newURL, function (data){
