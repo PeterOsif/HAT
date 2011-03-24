@@ -27,6 +27,18 @@
 
 }
 
+.iiv-annToolbar {
+  position: absolute;
+  margin: 0;
+  height: 44px;
+  top: 44px;
+  width: 100%;
+  border-bottom: 1px solid #ccc;
+  z-index: 200;
+  background-color: #e0e0e0;
+
+}
+
 .iiv-annotation-pane {
     position: absolute;
     margin: 0;
@@ -42,6 +54,15 @@
 }
 
 .iiv-toolbar button {
+  position: absolute;
+  height: 32px;
+  width: 32px;
+  text-decoration: none !important;
+  cursor: pointer;
+}
+
+/*Hat Project - Mark */
+.iiv-annToolbar button {
   position: absolute;
   height: 32px;
   width: 32px;
@@ -141,6 +162,8 @@
   height: 5px;
 }
 
+
+
 .iiv-slider.ui-slider-horizontal .ui-slider-handle {
   top: -4px;
   height: 11px;
@@ -215,11 +238,11 @@ button.highlight {
 }
 /*Sab*/
 button.polygon{
-    margin-left: 275px;
+    margin-left: 70px;
 }
 /*Sab*/
 button.poly{
-    margin-left: 310px;
+    margin-left: 105px;
 }
 /*HAT Project Pete*/
 input.text {
@@ -234,6 +257,22 @@ button.annotation{
 /*HAT Project Pete*/
 input.text {
     margin-left: 700px;
+}
+
+/*Mark*/
+button.buttonHideAnnotation{
+
+}
+
+/*Mark*/
+button.buttonFlagAnnotation{
+    margin-left: 35px;
+}
+
+/*Mark*/
+#selectBox{
+  	width : 190px; /* Resize Width */
+	height: 25px;	
 }
 
 button.search{

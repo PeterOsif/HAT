@@ -119,10 +119,18 @@ function iiv_annotation_select($pid){
     array_push($sanitized_results,$row);
   }
   
+  //Need Fedora_Item, and the AnnotationSet classes/objects
+	module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+	module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
+	
+	$anno_obj = new AnnotationSet(new Fedora_Item($pid));
+	
+	$annotations_out = array_merge($sanitized_results, $anno_obj->annotations);
+  
   drupal_set_header($text_content_type);//print text to client
   
   //print all output elements as list of JSON objects
-  echo _iiv_annotation_get_jsonp_callback(json_encode($sanitized_results));
+  echo _iiv_annotation_get_jsonp_callback(json_encode($annotations_out));
 }
 
 /*
@@ -136,12 +144,48 @@ function iiv_annotation_insert($pid, $text, $location, $public){
   
   //check if user has permissions to add annotations
   if(user_access('add annotations')){
-	$result = db_query($insert_query,$pid,$user->uid,$text,$location,$public,time());
+	$timestamp = time();
+	$result = db_query($insert_query,$pid,$user->uid,$text,$location,$public,$timestamp);
 	
 	//print result to output, let the client know its plain text
 	drupal_set_header($text_content_type);
 	
-	$message = ($result == 1 ? "success" : "error");
+	if($result == 1)
+	{
+		$message = "success";
+		
+		if($public)
+		{
+			//Need the last insertion id (corresponds to the id of the inserted annotation).
+			$increment_query = "SELECT LAST_INSERT_ID()";
+			$result = db_result(db_query($increment_query));
+			
+			//Need Fedora_Item, and the AnnotationSet classes/objects
+			module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+			module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
+			
+			$anno_obj = new AnnotationSet(new Fedora_Item($pid));
+			$anno_obj->addAnnotation($result, $user->uid, $user->name, $location, $text, $timestamp);
+			
+			//Move save to deconstructor?
+			if($anno_obj->save())
+			{
+				$message = "success";
+			}
+			else
+			{
+				$message = "error";
+			}
+		}
+		else
+		{
+			$message = "success";
+		}
+	}
+	else
+	{
+		$message = "error";
+	}
 	
 	echo _iiv_annotation_get_jsonp_callback(_iiv_annotation_json_message($message));
   } 
@@ -152,17 +196,49 @@ Return: prints to output
 Description: Deletes a given annotation
 */
 function iiv_annotation_delete($aid, $op){
+	//used when user is deleting annotation they own
   $delete_query = "DELETE FROM {annotations} WHERE aid = %d";
+	//used when admin is deleting flagged annotation
+  $update_query = "UPDATE {annotations} SET public = 0 WHERE aid = %d";
+  //used to determine if the given annotation has to be removed from Fedora
+  $select_query = "SELECT pid, public FROM {annotations} WHERE aid = %d";
  
 
   //if the user is an administrator, or if the user is deleting their own annotation
   if(user_access('administer annotations') || 
-  (user_access('remove own annotation') && _iiv_annotation_user_owns_annotation($aid))){
-    $result = db_query($delete_query,$aid);
+  (user_access('remove own annotation') && _iiv_annotation_user_owns_annotation($aid)))
+  {
+	$result = db_fetch_array(db_query($select_query, $aid));
+	$public = $result['public'];
+	$pid = $result['pid'];
+		
+	//Let user delete their own annotation...
+	if($op == 'json')
+	{
+		$query = $delete_query;
+	}
+	elseif($op == 'admin')
+	{
+	//Update the local database otherwise (this is an administrative task)
+		$query = $update_query;
+	}
+	
+    $result = db_query($query,$aid);
     if($result){
       //load the flagging include file so we can delete all flags belonging to annotation
       module_load_include('inc', 'iiv_annotation', 'inc/iiv_annotation_flagging');
       iiv_annotation_delete_flags($aid);  
+	  
+	  if($public)
+	  {
+			//Need Fedora_Item, and the AnnotationSet classes/objects
+			module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+			module_load_include('inc', 'iiv_annotation', 'inc/public_annotations');
+			
+			$anno_obj = new AnnotationSet(new Fedora_Item($pid));
+			$result = $anno_obj->deleteAnnotation($aid);
+			$anno_obj->save();
+	  }
     }
   }
   //$op is specified in the request to state whether to return plain text of to navigate back to flag admin page
