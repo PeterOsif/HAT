@@ -1,0 +1,13 @@
+
+<fmm:MethodMap xmlns:fmm="http://fedora.comm.nsdlib.org/service/methodmap" name="methodmap">
+  <fmm:Method operationName="getViewer" wsdlMsgName="getViewerRequestMsg" wsdlMsgOutput="getViewerResponseMsg">
+    <fmm:DefaultInputParm defaultValue="$PID" label="fedora object pid" parmName="PID" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+    <fmm:DefaultInputParm defaultValue="newspapers:issueCModel" label="content model" parmName="CMODEL" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+    <fmm:DefaultInputParm defaultValue="JP2" label="content model" parmName="DSID" passBy="VALUE" required="true"></fmm:DefaultInputParm>
+    <fmm:UserInputParm defaultValue="" parmName="uid" passBy="VALUE" required="false"></fmm:UserInputParm>
+    <fmm:UserInputParm defaultValue="" parmName="drupal_uid" passBy="VALUE" required="false"></fmm:UserInputParm>
+    <fmm:UserInputParm defaultValue="" parmName="drupal_domain" passBy="VALUE" required="false"></fmm:UserInputParm>
+    <fmm:UserInputParm defaultValue="" parmName="solr_query" passBy="VALUE" required="false"></fmm:UserInputParm>
+    <fmm:MethodReturnType wsdlMsgName="getViewerResponseMsg" wsdlMsgTOMIME="text/html"></fmm:MethodReturnType>
+  </fmm:Method>
+</fmm:MethodMap>

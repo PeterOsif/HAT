@@ -1,0 +1,38 @@
+
+<wsdl:definitions xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap" xmlns:soapenc="http://schemas.xmlsoap.org/wsdl/soap/encoding" xmlns:this="viewerSdep" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="viewerSdep" targetNamespace="viewerSdep">
+  <wsdl:message name="getViewerRequestMsg">
+    <wsdl:part name="PID" type="xsd:string"></wsdl:part>
+    <wsdl:part name="CMODEL" type="xsd:string"></wsdl:part>
+    <wsdl:part name="DSID" type="xsd:string"></wsdl:part>
+    <wsdl:part name="uid" type="xsd:string"></wsdl:part>
+    <wsdl:part name="drupal_uid" type="xsd:string"></wsdl:part>
+    <wsdl:part name="drupal_domain" type="xsd:string"></wsdl:part>
+    <wsdl:part name="solr_query" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getViewerResponseMsg">
+    <wsdl:part name="RESPONSE" type="xsd:string"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="viewer_portType">
+    <wsdl:operation name="getViewer">
+      <wsdl:input message="this:getViewerRequestMsg"></wsdl:input>
+      <wsdl:output message="this:getViewerResponseMsg"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:service name="viewer_service">
+    <wsdl:port binding="this:viewer_binding" name="viewer_port">
+      <http:address location="http://localhost:8080/iiv/viewer.jsp"></http:address>
+    </wsdl:port>
+  </wsdl:service>
+  <wsdl:binding name="viewer_binding" type="this:viewer_portType">
+    <http:binding verb="GET"></http:binding>
+    <wsdl:operation name="getViewer">
+      <http:operation location="?pid=(PID)&amp;cmodel=(CMODEL)&amp;dsid=(DSID)&amp;uid=(uid)&amp;drupal_uid=(drupal_uid)&amp;drupal_domain=(drupal_domain)&amp;solr_query=(solr_query)"></http:operation>
+      <wsdl:input>
+        <http:urlReplacement></http:urlReplacement>
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content type="text/html"></mime:content>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+</wsdl:definitions>

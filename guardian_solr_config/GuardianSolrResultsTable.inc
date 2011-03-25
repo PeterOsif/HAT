@@ -19,6 +19,17 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
     module_load_include('php', 'islandora_solr_search', 'Solr/Service');
   }
 
+//Extracts a word from a query URL and loads it into another function. 
+  function termExtract(){
+     $data = '';
+     if (array_key_exists('q', $_GET)){
+       $data = explode("/",$_GET[q]);
+       $query_dat = urldecode($data[3]);
+	return $query_dat;
+     }
+
+  }
+  
   /**
    * Outputs results in unified tabular format.
    *
@@ -35,33 +46,26 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
    *   output manually, should refactor to use drupal forms api.
    */
   //default implementation of display results can be changed in the blocks config
-  //default implementation of display results can be changed in the blocks config
   function displayResults($results){
-      $output.= '<ol start="'.($recordStart + 1).'">';
+   
+   //Load the search term:
+   $query_term = $this->termExtract();
+   $output.= '<ol start="'.($recordStart + 1).'">';
     global $base_url;
     if(empty($results)) {
       return "no results";
-    }
-    
-    //we need to grab the query from the URL so we can
-    //append it to the URL and load it into IIV
-    $query_term='';
-    if(array_key_exists('q',$_GET)){
-        $query = explode("/",$_GET['q']);
-        $query_term = urldecode($query[3]);
     }
 
     foreach($results->response->docs as $doc) {
       $output .= '<li><table>';
       foreach($doc as $field => $value) {
         $output .= '<tr><th>'.$field.'</th>';
-        if(is_array($value)) {
+        if(is_array($value)) {//
           $value = implode(", ",$value);
         }
 
         if($field=='PID') {
-           //attach query to end of URL so that IIV knows the search term
-          $output.='<td><a href="'.$base_url.'/fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8'). '?query=' . $query_term . '">'.$value.'</td>';
+          $output.='<td><a href="'.$base_url.'/fedora/repository/'.htmlspecialchars($value,ENT_QUOTES,'utf-8') . '?query=' . $query_term. '">'.$value.'</td>';
         }else {
           $output .= '<td>'.$value.'</td>';
         }
@@ -69,10 +73,12 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
       $output .='</table></li>';
     }
     $output .= '</ol>';
+
+    $output .= theme_item_list($items, $title, $type, array('class'=>'stuff','start'=>($recordStart + 1)));
     if( variable_get('islandora_solr_search_debug_mode', 0) ) { // debug dump
       $results_r .= "<pre>Results: ".print_r($results,true)."</pre>";
       $fieldset_r = array(
-        '#title' => t("Raw Results"),
+        '#title' => t("Raw Results"),                                                                                                                                             
         '#collapsible' => TRUE,
         '#collapsed' => TRUE,
         '#value' => $results_r,
@@ -83,3 +89,4 @@ class GuardianSolrResultsTable extends IslandoraSolrResults {
   }
 
 }
+
