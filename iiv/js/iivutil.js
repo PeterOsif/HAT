@@ -412,9 +412,11 @@ function featureSelect(feature) {
     
     var viewerUI = this;
     var title = "www.islandnewspapers.ca";
+   // var publicORpriv = $('#annotationPublic').attrib('checked')?1:0;
+    		
     //TODO: test the input field to ensure text exists
     //var testField = "if ($('#annotationText').val().length > 0) { return true } else { alert('Please ensure annotation text');}";
-    var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "',$('input[name=annotationPublic]:checked').val());";
+    var onClickText = "saveAnnotation($('#annotationText').val(),'" + coordsString + "', $('#annotationPublic').attr('checked')?1:0)";
     popup = new OpenLayers.Popup.FramedCloud("Region", 
         feature.geometry.getBounds().getCenterLonLat(),
         null,
@@ -448,6 +450,7 @@ function saveAnnotation(annotationText,coordinates, publicOn){
 	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
 	//alert(coordinates);	
 	var pid=viewer.currentPid();	
+	
 	addAnnotation(pid,annotationText,coordinates,publicOn);
 	// sfb, added to close popup box
 	//if (popup != null) {
@@ -575,3 +578,4 @@ function closePopupAndChangeControls(){
 	    popup = null;
     }
 }
+  
