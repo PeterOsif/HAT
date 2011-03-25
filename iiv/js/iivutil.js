@@ -210,7 +210,8 @@ function flagAnnotation(index){
 
 function flagAnnotationCallback(data){
 	
-	alert("IIVUtil: flagAnnotationCallback"); //TODO placeholder
+	//this function doesn't seem to be necessary - Mark 
+	//alert("IIVUtil: flagAnnotationCallback"); //test code
 }
 
 //function to select annotations, calls module to select the drupal database
