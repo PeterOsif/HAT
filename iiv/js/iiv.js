@@ -68,7 +68,8 @@ iiv.Viewer = new iiv.Class({
       viewer.initializeMap();
       viewer.ui.initializeUI();
       
-      //alert("PID" + viewer.currentPid() );  //test code
+      //Disable the flag annotation Button, to be renabled based on the users selection in the selectBox
+      jQuery('#buttonFlagAnnotation').attr("disabled", true);
       queryForAnnotation(viewer.currentPid());
       
       if(solr_search_term.length > 0){
@@ -432,7 +433,7 @@ iiv.Viewer.UI = new iiv.Class({
     //add Hide / Show annotation button
     this.buttonHideAnnotation = this.createButton(annControls, 'buttonHideAnnotation', 'Hide Annotation', 'ui-icon-comment ');
     //add Flagging annotation button
-    this.buttonFlagAnnotation = this.createButton(annControls, 'buttonFlagAnnotation', 'Flag Annotation', 'ui-icon-flag ');
+    this.buttonFlagAnnotation = this.createButtonWithID(annControls, 'buttonFlagAnnotation', 'Flag Annotation','buttonFlagAnnotation', 'ui-icon-flag ');
     //Sabina
     this.buttonPolygon = this.createButton(annControls, 'polygon', 'Draw Rectangle', 'ui-icon-arrow-2-se-nw');
     this.buttonMultiPolygon = this.createButton(annControls, 'poly', 'Draw Polygon', 'ui-icon-comment');
@@ -477,6 +478,12 @@ iiv.Viewer.UI = new iiv.Class({
     var button = jQuery('<button class="' + name + ' ui-corner-all ui-state-default"  title="' + title + '"><span class="ui-icon ' + iconClass + '"></span></button>');
     parent.append(button);
     return button;
+  },
+  
+  createButtonWithID: function(parent, name, title, id, iconClass) {
+	    var button = jQuery('<button class="' + name + ' ui-corner-all ui-state-default" id="' + id + '"  title="' + title + '"><span class="ui-icon ' + iconClass + '"></span></button>');
+	    parent.append(button);
+	    return button;
   },
 
   createZoomSlider: function(parent, name, tooltip, sliderOptions) {
@@ -716,11 +723,10 @@ iiv.Viewer.UI = new iiv.Class({
    },
    // Mark Annotations Flagging
    flagAnnotationToggle: function(){
-//	  var pid = this.viewer.currentPid();
-//	  var uid = drupal_uid;
-//      alert("PID: " + pid);
-//      alert("UID: " + uid);
-	   //TODO Flag the selected annotation
+	   alert("Annotation Flagged");
+	   
+	   var selectedItem = jQuery('#selectBox').val();
+	   flagAnnotation(selectedItem);
       
    },
    	// Mark selectBox onChange event

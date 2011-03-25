@@ -44,7 +44,7 @@ function queryForAnnotationCallback(data){
 	clearSelectBox();
 	
 	//counter, offset to allow for the two entries of public and my annotation in selectBox
-	var counter = 2;
+	var counter = 3;
 	
 	for (var i=0;i<data.length;i++){
 		var obj = data[i];
@@ -70,7 +70,7 @@ function queryForAnnotationCallback(data){
 		//alert(obj.annotation_text + "   " + obj.annotation_text);
 		//TODO JSON public key probably needs to be changed from "Public" as that word might be protected
 		//TODO this new key would go in the next line where the 1 is hard coded
-		var tempAnnotation = new annotationObject(obj.annotation_text, obj.annotation_location_size, 1, obj.uid);
+		var tempAnnotation = new annotationObject(obj.annotation_text, obj.annotation_location_size, 1, obj.uid, obj.aid);
 		annotationArray[counter] = tempAnnotation;
 		counter++;
 	}		
@@ -81,8 +81,10 @@ function showAnnotation(index){
 	clearAnnotationLayer();
 	//check if they want to view all public annotations
 	if (index == "Public" ){
+		//disable the Flag Annotation Button
+		jQuery('#buttonFlagAnnotation').attr("disabled", true);
 		//alert("Showing Public Annotations Check 1");
-		for (var i=2;i<annotationArray.length;i++){
+		for (var i=3;i<annotationArray.length;i++){
 			var obj = annotationArray[i];
 			//Show all public annotations
 			//alert("obj.pub " + obj.pub );
@@ -94,8 +96,10 @@ function showAnnotation(index){
 	}
 	//display a persons private annotations
 	else if (index == "Private"){
+		//disable the Flag Annotation Button
+		jQuery('#buttonFlagAnnotation').attr("disabled", true);
 		//alert("Showing Private Annotations Check 1");
-		for (var i=2;i<annotationArray.length;i++){
+		for (var i=3;i<annotationArray.length;i++){
 			var obj = annotationArray[i];
 			//alert("UID Logged In / UID of Annotation: " + drupal_uid + "/"+ obj.uid );			
 			if (obj.uid == drupal_uid){
@@ -104,8 +108,15 @@ function showAnnotation(index){
 			}
 		}
 	}
+	else if (index == "Annotations"){
+		//Do Nothing
+		//disable the Flag Annotation Button
+		jQuery('#buttonFlagAnnotation').attr("disabled", true);
+	}
 	//display the selected annotation
 	else {
+		//enable the Flag Annotation Button
+		jQuery('#buttonFlagAnnotation').attr("disabled", false);
 		var obj = annotationArray[index];
 		drawPolygon(obj.text, obj.geom);
 	}
@@ -115,11 +126,12 @@ function showAnnotation(index){
 
 
 //function to instantiate an annotations Object 
-function annotationObject(text, geom, pub, uid){
+function annotationObject(text, geom, pub, uid, aid){
 	this.text = text;
 	this.geom = geom;
 	this.pub = pub;
 	this.uid = uid;
+	this.aid = aid;
 }
 
 
@@ -127,6 +139,7 @@ function clearSelectBox(){
 	jQuery('#selectBox').children().remove();
     
 	//initialize base values
+	jQuery('#selectBox').append('<option value="Annotations">Annotations </option>');
 	jQuery('#selectBox').append('<option value="Public"> Public Annotations </option>');
    	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
     
@@ -180,9 +193,12 @@ function addAnnotationCallback(data){
     }
 }
 //function to select annotations, calls module to select the drupal database
-function flagAnnotation(aid){
+function flagAnnotation(index){
+	//get the object with the corresponding index
+	var obj = annotationArray[index];
+	
 	var baseURL= drupal_domain + "/islandora/annotation/flag";
-	var newURL = baseURL +'/'+ aid + '/?callback=?';
+	var newURL = baseURL +'/'+ obj.aid + '/?callback=?';
 	
 	//call query function
     $.getJSON(newURL, function (data){
@@ -193,6 +209,8 @@ function flagAnnotation(aid){
 }
 
 function flagAnnotationCallback(data){
+	
+	alert("IIVUtil: flagAnnotationCallback"); //TODO placeholder
 }
 
 //function to select annotations, calls module to select the drupal database
