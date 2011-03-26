@@ -118,6 +118,7 @@ function showAnnotation(index){
 		//enable the Flag Annotation Button
 		jQuery('#buttonFlagAnnotation').attr("disabled", false);
 		var obj = annotationArray[index];
+		destroyAnnotPopup();
 		drawPolygon(obj.text, obj.geom);
 	}
 	
@@ -326,6 +327,30 @@ function toggleHighlightLayer(){
 		}
 	}
 }
+function toggleAnnotationLayer(){
+	var annoLayer = getAnnotationLayer();
+	if(annoLayer!==null){
+	       if(annoLayer.getVisibility()===true){	   
+	       console.log(map.popups.length);
+	      // while( map.popups.length ) {
+	        	//map.removePopup(map.popups[0]);
+	        //	map.popups[0].hide();
+	        for(var i=0;i<map.popups.length;i++){
+	        	map.popups[i].hide();
+	         }
+		    console.log(map.popups.length);
+		    annoLayer.setVisibility(false);
+			
+		}
+		else{			
+			annoLayer.setVisibility(true);
+			 for(i=0;i<map.popups.length;i++){
+	        	map.popups[i].show();
+	         }
+		}
+	}
+	annoLayer.feature.popup.toggle();
+}
 function drawPolygon(annotationText,geom)
 {
    var pointList = [];
@@ -336,39 +361,59 @@ function drawPolygon(annotationText,geom)
    	   var y=(parseInt(splitXY[1]));	   
    	   console.log("Point"+i+" X="+x+" Y="+y);
    	   var aPoint = new OpenLayers.Geometry.Point(x,y);
-       pointList.push(aPoint);
+          pointList.push(aPoint);
    }
 	console.log(pointList);
 	// create a polygon feature from a list of points
 	var linearRing = new OpenLayers.Geometry.LinearRing(pointList);     
-	var polygonFeature = new OpenLayers.Feature.Vector(linearRing, null); 
-	var annotationLayer = getAnnotationLayer();                     
+	var polygonFeature = new OpenLayers.Feature.Vector(linearRing, null);	
+        annotationLayer = getAnnotationLayer();	
 	annotationLayer.addFeatures([polygonFeature]);      
-	//alert(annotationLayer.getVisibility()); 
-	selectedControl=polygonFeature;
-	var popupPosition =   polygonFeature.geometry.getBounds().getCenterLonLat();//lonlat
-	var len=annotationText.length; 
-	var opacity =0.8;    
-	popup = new OpenLayers.Popup.Anchored("ID", //id 
-				     popupPosition,
-				     new OpenLayers.Size(len*10,len*3),//size w*h                                     
-				     "<font color='green'>"+annotationText+"</font>",//HTML content
-				     null,//anchor
-				     true,//function to be called on closeBox Click
-				     onAnnotationPopupClose);
-	
-	annotationLayer.popup=popup;
+	//alert(annotationLayer.getVisibility()); 	
+	var popupPosition = polygonFeature.geometry.getBounds().getCenterLonLat();//lonlat
+	//Set minimum height and width of Popup
+	var height=60;
+	var width=100;	
+	var stringLength=annotationText.length; 
+	//change height and width according to annotation text length
+	if(stringLength>30)	{
+		width=width+(stringLength/2);
+		height=height+20;	
+		console.log("Width of Popup="+width);	
+		console.log("Height of Popup="+height);		
+	}			
+	popup = new OpenLayers.Popup.Anchored(polygonFeature.id, //id 	
+					popupPosition,
+					new OpenLayers.Size(width,height),//size w*h                                     
+					"<font color='green'>"+annotationText+"</font>",//HTML content
+					null,//anchor
+					true,//function to be called on closeBox Click
+					onAnnotationPopupClose);
+	var opacity =0.8;		
+	polygonFeature.popup=popup;
 	popup.setOpacity(opacity);       
-	annotationLayer.addFeatures([polygonFeature]);         
-	map.addPopup(popup);  
+	map.addPopup(popup);      	
 }
+function destroyAnnotPopup()
+{
+	//Check if the feature is invisble or destroyed, and destroy popup
+	if (popup !== null ) {
+	    map.removePopup(popup);
+	    popup.destroy();
+	    popup = null;
+    }
+	
+}
+
 function onAnnotationPopupClose(evt) {   
     // alert(evt);      
     document.getElementById('iiv-image-panel').style.cursor = 'move';
-    map.removePopup(this);
-    selectedControl.destroy();  
+    console.log(this.id);
+    map.removePopup(this); 
+    var featureid=annotationLayer.getFeatureById(this.id);
+    featureid.destroy();    
     popup=null;
-}
+} 
   
 function getAnnotationLayer(){
     var annotationLayer = this.map.getLayersByName("annotationLayer");
