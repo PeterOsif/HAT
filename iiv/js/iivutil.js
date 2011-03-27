@@ -76,14 +76,18 @@ function queryForAnnotationCallback(data){
 	}		
 	
 }
-function showAnnotation(index){
-	//clear all annotations
-	clearAnnotationLayer();
+function showAnnotation(index){	
+	
 	//check if they want to view all public annotations
 	if (index == "Public" ){
+		
+		//clear all annotations		
+		clearAnnotationLayer();
+		
 		//disable the Flag Annotation Button
 		jQuery('#buttonFlagAnnotation').attr("disabled", true);
-		//alert("Showing Public Annotations Check 1");
+		//alert("Showing Public Annotations Check 1");	
+		
 		for (var i=3;i<annotationArray.length;i++){
 			var obj = annotationArray[i];
 			//Show all public annotations
@@ -98,7 +102,8 @@ function showAnnotation(index){
 	else if (index == "Private"){
 		//disable the Flag Annotation Button
 		jQuery('#buttonFlagAnnotation').attr("disabled", true);
-		//alert("Showing Private Annotations Check 1");
+		//alert("Showing Private Annotations Check 1");		
+	        clearAnnotationLayer();
 		for (var i=3;i<annotationArray.length;i++){
 			var obj = annotationArray[i];
 			//alert("UID Logged In / UID of Annotation: " + drupal_uid + "/"+ obj.uid );			
@@ -402,13 +407,25 @@ function drawPolygon(annotationText,geom)
 }
 function destroyAnnotPopup()
 {
-	//Check if the feature is invisble or destroyed, and destroy popup
+	
 	if (popup !== null ) {
 	    map.removePopup(popup);
 	    popup.destroy();
 	    popup = null;
     }
 	
+}
+function destroyAllTextPopups()
+{	
+	console.log("Popup Length="+map.popups.length);
+	var len=map.popups.length;
+	if((map.popups.length)>0){	
+		for(var i=0;i<len;i++){
+		map.popups[0].destroy();				
+		}
+	console.log("Popup Length="+map.popups.length);
+	}
+		        
 }
 
 function onAnnotationPopupClose(evt) {   
@@ -439,7 +456,8 @@ function getAnnotationLayer(){
 
 function clearAnnotationLayer(){
 	
-    getAnnotationLayer().destroyFeatures();
+       destroyAllTextPopups();
+	getAnnotationLayer().destroyFeatures();
 }
 
 
