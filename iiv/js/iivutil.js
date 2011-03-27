@@ -145,11 +145,18 @@ function clearSelectBox(){
    	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
     
 }
-
+/**
+ * @deprecated 
+ * @param details
+ */
 function parseSearchResults(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
 	$("div.status").text("Server Message:" + details);
 }
+/**
+ * @deprecated
+ * @param details
+ */
 function updateStatusOnPage(details){
 	//TODO:remove once we connect the pieces together, this was only used for testing
 	$("div.status").text("Server Message:" + details);
@@ -285,8 +292,7 @@ function onPopupClose(evt) {
    
     //map.removeControl(polyControl);
     closePopupAndChangeControls();
-    //TODO:set focus back to map so selection doesn't occur again
-    changeBackToImage();
+
 }
 
 /**
@@ -523,8 +529,6 @@ function saveAnnotation(annotationText,coordinates, publicOn){
 	//	popup = null;
 	//}
 	closePopupAndChangeControls();
-    //TODO:set focus back to map so selection doesn't occur again
-    changeBackToImage();
 }
 
 function drawBox(obj){
@@ -586,6 +590,7 @@ function checkStatusAndSearch(pid,query){
 		  // the normal flow will not need this timer but this here in case a error occurs 
 		  // getting a response from the highlight search 
 		  //set a timer so the search can be run after 2 minutes
+		  //TODO:Update to the the default value
 		  var timeOut= 5000; // 5 secs
 		  //var timeOut= 120000; // 2 minutes
 		  alertTimerId = setTimeout ( "clearTimer()", timeOut );
@@ -613,29 +618,34 @@ function changeBackToImage(){
 	for( var i=0; i<map.controls.length; i++ ) {
 		map.controls[i].deactivate();
 	} 
-	
 	//set back to navigation control
 	map.getControl("OpenLayers.Control.Navigation_4").activate();
 	//map.getControl("OpenLayers.Control.MouseDefaults_4").activate();
 	//map.getControl("OpenLayers.Control.KeyboardDefaults_5").activate();
 }
-
+/**
+ * closePopupAndChangeControls
+ * Used to shut off the drawing controls for polygons
+ * Closes any related popups
+ * 
+ */
 function closePopupAndChangeControls(){
+    //set focus back to map so selection doesn't occur again
+    changeBackToImage();
+    // check for polygons with 4 sides
     if (polyControl != null ) {
     	if (polyControl.box != null){
     		polyControl.box.clear(); 
         	polyControl.deactivate();
     	}
     }
+    // check for polygons > 4 sides
     if (mulpolyControl != null ) {
-    	//	mulpolyControl.box.clear(); 
-    	 var mulpolyControlLayer = this.map.getLayersByName("Polygon Layer");
-    	// mulpolyControlLayer.destroyFeatures();
-    	mulpolyControl.deactivate();
-    	//clearAnnotationLayer();
+      	if ( mulpolyControl.poly != null ){
+    		mulpolyControl.poly.control.poly.deactivate();
+    	}
     }
 
-    
 	if (popup != null ) {
 	    map.removePopup(popup);
 	    popup.destroy();

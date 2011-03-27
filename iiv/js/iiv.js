@@ -99,7 +99,8 @@ iiv.Viewer = new iiv.Class({
     // polygon control for use with popup boxes
     map = this.map; 
      //polyControl is used for selections and eventually annotations
-    polyControl = new OpenLayers.Control(this.map);
+    //polyControl = new OpenLayers.Control(this.map);
+    polyControl = new OpenLayers.Control();
 
     OpenLayers.Util.extend(polyControl, {
       draw: function() {
@@ -112,19 +113,21 @@ iiv.Viewer = new iiv.Class({
 	    }//notice
     });//OpenLayers.Util.extend
     //end add by sfb  
-    polygonLayer = new OpenLayers.Layer.Vector("Annotations");
+    //sfb removed as layer was not being used
+   // polygonLayer = new OpenLayers.Layer.Vector("Annotations");
     
     //added by sfb --use for debugging
-    //map.addControl(new OpenLayers.Control.LayerSwitcher());
+   // map.addControl(new OpenLayers.Control.LayerSwitcher());
     //map.addControl(new OpenLayers.Control.MousePosition());
-    //sabina 
-    mulpolyControl = new OpenLayers.Control(this.map);
-    vectors = new OpenLayers.Layer.Vector("Polygon Layer");
-   // map.addLayers([imageLayer, vectors]);
+    //sabina this.map
+    mulpolyControl = new OpenLayers.Control();
+    //sfb removed as layer was not being used
+    //vectors = new OpenLayers.Layer.Vector("Polygon Layer");
+    // map.addLayers([imageLayer, vectors]);
     //sfb fixed
-    map.addLayers([polygonLayer, vectors]);
+    //map.addLayers([polygonLayer, vectors]);
     
-    OpenLayers.Util.extend(mulpolyControl, {
+    drawingTool =  OpenLayers.Util.extend(mulpolyControl, {
        draw: function() {       	 
          this.poly = new OpenLayers.Handler.Polygon(mulpolyControl,
          {"done": this.notice}, {sides:7, irregular:true, persist:true});
@@ -136,10 +139,11 @@ iiv.Viewer = new iiv.Class({
         }//notice
     });//OpenLayers.Util.extend
     
+    
  },    
     createMapControls: function() {
     var controls = [
-                    //added sfb
+        //added sfb
         new OpenLayers.Control.Navigation({documentDrag: true}),
         new OpenLayers.Control.MouseDefaults(),
         new OpenLayers.Control.KeyboardDefaults()
