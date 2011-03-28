@@ -76,6 +76,7 @@ function queryForAnnotationCallback(data){
 	}		
 	
 }
+
 function showAnnotation(index){	
 	
 	//check if they want to view all public annotations
@@ -156,6 +157,8 @@ function clearSelectBox(){
 	jQuery('#selectBox').append('<option value="Annotations">Annotations </option>');
 	jQuery('#selectBox').append('<option value="Public"> Public Annotations </option>');
    	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
+   	
+   	annotationArray = new Array();
     
 }
 /**
@@ -296,14 +299,7 @@ function setupPopControlforPolygon(){
  */
 function onPopupClose(evt) {
     // 'this' is the popup.
-	//polyControl.unselect(this.feature);
-	//alert(evt);
     document.getElementById('iiv-image-panel').style.cursor = 'move';
-   
-   
-   //imageLayer.activate();
-   
-    //map.removeControl(polyControl);
     closePopupAndChangeControls();
 
 }
@@ -314,11 +310,7 @@ function onPopupClose(evt) {
  */
 //added by sfb
 function boxNotice(geom) {
-	
-	//polyControl.activate();
-    // document.getElementById('map').style.cursor = 'crosshair';
-    // document.getElementById('iiv-image-panel').style.cursor = 'crosshair';
-	
+
     var feature = new OpenLayers.Feature.Vector(geom, null, {
         strokeColor: "#0033ff",
         strokeOpacity: 0.7,
@@ -331,7 +323,6 @@ function boxNotice(geom) {
 	    popup = null;
     }
     featureSelect(feature);
-    //sortOutButtons(oDragPanCtrl, false);
 }//boxNotice
 
 //Sabina
@@ -543,23 +534,16 @@ function featureSelect(feature) {
  */
  
 function saveAnnotation(annotationText,coordinates, publicOn){
-	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
-	//alert(coordinates);	
 	var pid=viewer.currentPid();
-	
-
 	addAnnotation(pid,annotationText,coordinates,publicOn);
-	// sfb, added to close popup box
-	//if (popup != null) {
-	//	map.removePopup(popup);
-	//	popup.destroy();
-	//	popup = null;
-	//}
 	closePopupAndChangeControls();
 	
 	//add new Annotaiton to the selectBox
-	queryForAnnotation(pid)
-	
+	var display = 'Now - ' + annotationText.substr(0,20);
+	jQuery('#selectBox').append('<option value="' + annotationArray.length + '">' + display  + '</option>');
+			
+	var tempAnnotation = new annotationObject(annotationText, coordinates, 1, drupal_uid, 0);
+	annotationArray.push(tempAnnotation);	
 }
 
 function drawBox(obj){

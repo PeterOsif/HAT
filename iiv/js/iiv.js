@@ -75,8 +75,6 @@ iiv.Viewer = new iiv.Class({
       if(solr_search_term.length > 0){
          //call search for highlight terms
         getHighlightCoordinates(viewer.currentPid(), solr_search_term);
-      
-        
       }
     };
   },
@@ -249,6 +247,8 @@ iiv.Viewer = new iiv.Class({
     clearAnnotationLayer();
 	clearSelectBox();
     this.setPage(this.pageIndex + 1);
+    //get annotations for new page
+    queryForAnnotation(viewer.currentPid());
   },
 
   previousPid: function() {
@@ -256,6 +256,8 @@ iiv.Viewer = new iiv.Class({
     clearAnnotationLayer();
 	clearSelectBox();
     this.setPage(this.pageIndex - 1);
+    //get annotations for new page
+    queryForAnnotation(viewer.currentPid());
   },
 
   loadText: function() {

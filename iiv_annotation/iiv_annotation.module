@@ -262,7 +262,7 @@ function iiv_annotation_highlight($pid, $query){
     //Decompose the query into single word, and store them in the query_arr array.
     $query_arr = explode(" ",$query);					
     //Generate the coodinates file url.
-    $host = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
+    $host = variable_get('iiv_highlighting_fedora_url', 'http://localhost:8080/fedora');
     $coodinates_url = $host.'/objects/'.$pid.'/datastreams/WORDSXY/content';
     $xmlDoc = new DOMDocument();
     if($xmlDoc->load($coodinates_url))
