@@ -100,10 +100,14 @@ function showAnnotation(index){
 	}
 	//display a persons private annotations
 	else if (index == "Private"){
+		
+		//clear all annotations		
+		clearAnnotationLayer();
+		
 		//disable the Flag Annotation Button
 		jQuery('#buttonFlagAnnotation').attr("disabled", true);
 		//alert("Showing Private Annotations Check 1");		
-	        clearAnnotationLayer();
+	    
 		for (var i=3;i<annotationArray.length;i++){
 			var obj = annotationArray[i];
 			//alert("UID Logged In / UID of Annotation: " + drupal_uid + "/"+ obj.uid );			
@@ -120,10 +124,14 @@ function showAnnotation(index){
 	}
 	//display the selected annotation
 	else {
+		
+		//clear all annotations		
+		clearAnnotationLayer();
+		
 		//enable the Flag Annotation Button
 		jQuery('#buttonFlagAnnotation').attr("disabled", false);
 		var obj = annotationArray[index];
-		destroyAnnotPopup();
+		//destroyAnnotPopup();  // ??? 
 		drawPolygon(obj.text, obj.geom);
 	}
 	
@@ -457,7 +465,7 @@ function getAnnotationLayer(){
 function clearAnnotationLayer(){
 	
        destroyAllTextPopups();
-	getAnnotationLayer().destroyFeatures();
+       getAnnotationLayer().destroyFeatures();
 }
 
 
@@ -537,8 +545,9 @@ function featureSelect(feature) {
 function saveAnnotation(annotationText,coordinates, publicOn){
 	//alert("i would have saved:" + annotationText + "\n" +"Public=" + publicOn);	
 	//alert(coordinates);	
-	var pid=viewer.currentPid();	
+	var pid=viewer.currentPid();
 	
+
 	addAnnotation(pid,annotationText,coordinates,publicOn);
 	// sfb, added to close popup box
 	//if (popup != null) {
@@ -547,6 +556,10 @@ function saveAnnotation(annotationText,coordinates, publicOn){
 	//	popup = null;
 	//}
 	closePopupAndChangeControls();
+	
+	//add new Annotaiton to the selectBox
+	queryForAnnotation(pid)
+	
 }
 
 function drawBox(obj){
