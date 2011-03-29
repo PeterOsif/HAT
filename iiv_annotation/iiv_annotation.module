@@ -257,6 +257,7 @@ function iiv_annotation_delete($aid, $op){
 
 //Returns JSON data of a given query
 function iiv_annotation_highlight($pid, $query){
+
     drupal_set_header($text_content_type);//print text to client
     $query_arr = array();
     //Decompose the query into single word, and store them in the query_arr array.
@@ -271,7 +272,6 @@ function iiv_annotation_highlight($pid, $query){
     	//Get each subtree of single line.
     	$element = $root->getElementsByTagName('par');
     	$result = array();
-    	$global = 0;
     	foreach($element as $new)
     	{
     		$child = $new->childNodes;
@@ -293,10 +293,22 @@ function iiv_annotation_highlight($pid, $query){
     					$OK = true;
     				}
     				if($OK)
-    				{
-    					$global ++;
-    					watchdog('test',$global);
-    					$temp = array('l'=>$child->item($i)->getAttribute('l'),'t'=>$child->item($i)->getAttribute('t'),'r'=>$child->item($i)->getAttribute('r'),'b'=>$child->item($i)->getAttribute('b'));
+    				{							$scale_v1 = variable_get('iiv_highlighting_vertical', '0');
+							$scale_h1 = variable_get('iiv_highlighting_horizontal', '0');
+							$scale_v = (double)($scale_v1);
+							$scale_h = (double)($scale_h1);
+							$left = (int)($child->item($i)->getAttribute('l'));
+							$top = (int)($child->item($i)->getAttribute('t'));
+							$right = (int)($child->item($i)->getAttribute('r'));
+							$bottom = (int)($child->item($i)->getAttribute('b'));
+							$vertical = ($bottom - $top) * $scale_v;
+							$horizontal = ($right - $left) * $scale_h;
+							$left = $left - 0.5*$horizontal;
+							$right = $right + 0.5*$horizontal;
+							$top = $top - 0.5*$vertical;
+							$bottom = $bottom + 0.5*$vertical; 
+							
+    						$temp = array('l'=>$left,'t'=>$top,'r'=>$right,'b'=>$bottom);
     						array_push($result,$temp);
     				}	
     			}
@@ -327,20 +339,37 @@ function iiv_annotation_highlight($pid, $query){
     					if(strncasecmp($query_arr[$j],$child->item($count)->firstChild->nodeValue,strlen($query_arr[$j])-1) != 0)
     					{
     							$OK = false;
-    					}
-    					if(strlen($query_arr[$j])*2 < strlen($child->item($count)->firstChild->nodeValue))
-    					{
-    							$OK = false;
-    					}					
+    					}				
     				}
-    				
     				if($OK)
     				{
     					//generate a array with 4 coordinates for one word, and push all the arrays into single array.  
     					for($k=0;$k<count($query_arr);$k++)
     					{
     						$number = $i+2*$k;
-    						$temp = array('l'=>$child->item($number)->getAttribute('l'),'t'=>$child->item($number)->getAttribute('t'),'r'=>$child->item($number)->getAttribute('r'),'b'=>$child->item($number)->getAttribute('b'));
+							$scale_v1 = variable_get('iiv_highlighting_vertical', '0');
+							$scale_h1 = variable_get('iiv_highlighting_horizontal', '0');
+							$scale_v = (double)($scale_v1);
+							$scale_h = (double)($scale_h1);
+							$left = (int)($child->item($number)->getAttribute('l'));
+							watchdog ('1left',$left );
+							$top = (int)($child->item($number)->getAttribute('t'));
+							watchdog ('1top',$top );
+							$right = (int)($child->item($number)->getAttribute('r'));
+							watchdog ('1right',$right );
+							$bottom = (int)($child->item($number)->getAttribute('b'));
+							watchdog('1bottom',$bottom);
+							$vertical = ($bottom - $top) * $scale_v;
+							watchdog('1vertical',$vertical);
+							$horizontal = ($right - $left) * $scale_h;
+							watchdog('1horizontal',$horizontal);
+							$left = $left - 0.5*$horizontal;
+							$right = $right + 0.5*$horizontal;
+							$top = $top - 0.5*$vertical;
+							watchdog('second left',$left);
+							$bottom = $bottom + 0.5*$vertical; 
+							
+    						$temp = array('l'=>$left,'t'=>$top,'r'=>$right,'b'=>$bottom);
     						array_push($result,$temp);
     				
     					}
@@ -349,7 +378,6 @@ function iiv_annotation_highlight($pid, $query){
     		}
     	
     	}
-    
         echo _iiv_annotation_get_jsonp_callback(json_encode($result));
     	
     }

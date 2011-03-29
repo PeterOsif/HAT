@@ -249,6 +249,10 @@ iiv.Viewer = new iiv.Class({
     this.setPage(this.pageIndex + 1);
     //get annotations for new page
     queryForAnnotation(viewer.currentPid());
+    //auto search for search term
+    if(solr_search_term.length > 0){
+        checkStatusAndSearch(viewer.currentPid(),solr_search_term);
+    }
   },
 
   previousPid: function() {
@@ -258,6 +262,10 @@ iiv.Viewer = new iiv.Class({
     this.setPage(this.pageIndex - 1);
     //get annotations for new page
     queryForAnnotation(viewer.currentPid());
+    //auto search for search term
+    if(solr_search_term.length > 0){
+        checkStatusAndSearch(viewer.currentPid(),solr_search_term);
+    }
   },
 
   loadText: function() {

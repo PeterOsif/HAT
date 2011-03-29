@@ -32,10 +32,6 @@ function queryForAnnotation(pid){
                         queryForAnnotationCallback(data);
                         //alert(data);
                       });
-    
-	//console.log(html);
-	//document.data.myData.value = "Search Worked";
-	//alert(html); //test code
 }
 
 function queryForAnnotationCallback(data){
@@ -200,7 +196,7 @@ function addAnnotation(pid,annotationText,annotationLocation,private){
 	//var baseURL="http://192.168.56.101/islandora/annotation/insert";
 	//messages success/error
 	
-	var escapedText = escape(annotationText);
+	var escapedText = encodeURIComponent(annotationText);
 	var newURL = drupal_domain + "/islandora/annotation/insert/";
 	newURL += pid +'/' + escapedText  + '/' +  annotationLocation +'/' + private + "/?callback=?";
       
@@ -341,14 +337,10 @@ function toggleAnnotationLayer(){
 	var annoLayer = getAnnotationLayer();
 	if(annoLayer!==null){
 	       if(annoLayer.getVisibility()===true){	   
-	       console.log(map.popups.length);
-	      // while( map.popups.length ) {
-	        	//map.removePopup(map.popups[0]);
-	        //	map.popups[0].hide();
+	           
 	        for(var i=0;i<map.popups.length;i++){
 	        	map.popups[i].hide();
 	         }
-		    console.log(map.popups.length);
 		    annoLayer.setVisibility(false);
 			
 		}
@@ -368,12 +360,10 @@ function drawPolygon(annotationText,geom)
    for(var i = 0; i < splitPixels.length; i++){
    	   var splitXY=splitPixels[i].split(" ");    	   
    	   var x=(parseInt(splitXY[0]));
-   	   var y=(parseInt(splitXY[1]));	   
-   	   console.log("Point"+i+" X="+x+" Y="+y);
+   	   var y=(parseInt(splitXY[1]));
    	   var aPoint = new OpenLayers.Geometry.Point(x,y);
           pointList.push(aPoint);
    }
-	console.log(pointList);
 	// create a polygon feature from a list of points
 	var linearRing = new OpenLayers.Geometry.LinearRing(pointList);     
 	var polygonFeature = new OpenLayers.Feature.Vector(linearRing, null);	
@@ -389,8 +379,6 @@ function drawPolygon(annotationText,geom)
 	if(stringLength>30)	{
 		width=width+(stringLength/2);
 		height=height+20;	
-		console.log("Width of Popup="+width);	
-		console.log("Height of Popup="+height);		
 	}			
 	popup = new OpenLayers.Popup.Anchored(polygonFeature.id, //id 	
 					popupPosition,
@@ -416,21 +404,17 @@ function destroyAnnotPopup()
 }
 function destroyAllTextPopups()
 {	
-	console.log("Popup Length="+map.popups.length);
 	var len=map.popups.length;
 	if((map.popups.length)>0){	
 		for(var i=0;i<len;i++){
 		map.popups[0].destroy();				
 		}
-	console.log("Popup Length="+map.popups.length);
-	}
-		        
+	}        
 }
 
 function onAnnotationPopupClose(evt) {   
     // alert(evt);      
     document.getElementById('iiv-image-panel').style.cursor = 'move';
-    console.log(this.id);
     map.removePopup(this); 
     var featureid=annotationLayer.getFeatureById(this.id);
     featureid.destroy();    
@@ -600,6 +584,8 @@ function clearTimer(){
  * Check to make sure a search is not already in progress, if not search  
  */
 function checkStatusAndSearch(pid,query){
+    //save the most recent search so we can auto fire it on page turn
+	 solr_search_term = query;
 	 // Is there search in progress
 	  if (searchStatus == "" || searchStatus == "done"){
 		  // the normal flow will not need this timer but this here in case a error occurs 
