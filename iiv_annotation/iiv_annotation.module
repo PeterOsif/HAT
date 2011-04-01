@@ -351,26 +351,21 @@ function iiv_annotation_highlight($pid, $query){
 							$scale_h1 = variable_get('iiv_highlighting_horizontal', '0');
 							$scale_v = (double)($scale_v1);
 							$scale_h = (double)($scale_h1);
-							$left = (int)($child->item($number)->getAttribute('l'));
-							watchdog ('1left',$left );
-							$top = (int)($child->item($number)->getAttribute('t'));
-							watchdog ('1top',$top );
-							$right = (int)($child->item($number)->getAttribute('r'));
-							watchdog ('1right',$right );
-							$bottom = (int)($child->item($number)->getAttribute('b'));
-							watchdog('1bottom',$bottom);
-							$vertical = ($bottom - $top) * $scale_v;
-							watchdog('1vertical',$vertical);
-							$horizontal = ($right - $left) * $scale_h;
-							watchdog('1horizontal',$horizontal);
-							$left = $left - 0.5*$horizontal;
-							$right = $right + 0.5*$horizontal;
-							$top = $top - 0.5*$vertical;
-							watchdog('second left',$left);
-							$bottom = $bottom + 0.5*$vertical; 
-							
-    						$temp = array('l'=>$left,'t'=>$top,'r'=>$right,'b'=>$bottom);
-    						array_push($result,$temp);
+							if(is_object($child->item($number))){
+    							$left = (int)($child->item($number)->getAttribute('l'));
+    							$top = (int)($child->item($number)->getAttribute('t'));
+    							$right = (int)($child->item($number)->getAttribute('r'));
+    							$bottom = (int)($child->item($number)->getAttribute('b'));
+    							$vertical = ($bottom - $top) * $scale_v;
+    							$horizontal = ($right - $left) * $scale_h;
+    							$left = $left - 0.5*$horizontal;
+    							$right = $right + 0.5*$horizontal;
+    							$top = $top - 0.5*$vertical;
+    							$bottom = $bottom + 0.5*$vertical; 
+    							
+        						$temp = array('l'=>$left,'t'=>$top,'r'=>$right,'b'=>$bottom);
+        						array_push($result,$temp);
+							}
     				
     					}
     				}
@@ -386,6 +381,7 @@ function iiv_annotation_highlight($pid, $query){
         echo _iiv_annotation_json_message("error loading document");
     }
 }
+
 
 /*
 Return: boolean

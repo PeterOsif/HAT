@@ -114,10 +114,8 @@ function showAnnotation(index){
 			}
 		}
 	}
-	else if (index == "Annotations"){
-		//Do Nothing
-		//disable the Flag Annotation Button
-		jQuery('#buttonFlagAnnotation').attr("disabled", true);
+	else if (index == "Clear"){
+		clearAnnotationLayer();
 	}
 	//display the selected annotation
 	else {
@@ -150,8 +148,8 @@ function clearSelectBox(){
 	jQuery('#selectBox').children().remove();
     
 	//initialize base values
-	jQuery('#selectBox').append('<option value="Annotations">Annotations </option>');
-	jQuery('#selectBox').append('<option value="Public"> Public Annotations </option>');
+	jQuery('#selectBox').append('<option value="Clear">--Clear--</option>');
+	jQuery('#selectBox').append('<option value="Public"> All Annotations </option>');
    	jQuery('#selectBox').append('<option value="Private"> My Annotations </option>');
    	
    	annotationArray = new Array();

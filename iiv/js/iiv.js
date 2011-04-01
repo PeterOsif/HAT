@@ -245,6 +245,7 @@ iiv.Viewer = new iiv.Class({
   nextPid: function() {
     clearHighlightLayer();
     clearAnnotationLayer();
+    popup=null;
 	clearSelectBox();
     this.setPage(this.pageIndex + 1);
     //get annotations for new page
@@ -258,6 +259,7 @@ iiv.Viewer = new iiv.Class({
   previousPid: function() {
     clearHighlightLayer();
     clearAnnotationLayer();
+    popup = null;
 	clearSelectBox();
     this.setPage(this.pageIndex - 1);
     //get annotations for new page
@@ -445,7 +447,7 @@ iiv.Viewer.UI = new iiv.Class({
     //selectBar populated with annotations
     this.selectBar = this.createSelectBar(annControls, 'select', 'Select Box');   
     //add Hide / Show annotation button
-    this.buttonHideAnnotation = this.createButton(annControls, 'buttonHideAnnotation', 'Hide Annotation', 'ui-icon-comment ');
+    //this.buttonHideAnnotation = this.createButton(annControls, 'buttonHideAnnotation', 'Hide Annotation', 'ui-icon-comment ');
     //add Flagging annotation button
     this.buttonFlagAnnotation = this.createButtonWithID(annControls, 'buttonFlagAnnotation', 'Flag Annotation','buttonFlagAnnotation', 'ui-icon-flag ');
     //Sabina
@@ -465,7 +467,7 @@ iiv.Viewer.UI = new iiv.Class({
   
   // Mark -->
   createSelectBar: function(parent, name, title) {
-      var selectBox = jQuery('<select class="'+ name +' ui-corner-all ui-state-default" name="selectBox" ID="selectBox" type="' + name + '"  title="' + title + '"/>');
+      var selectBox = jQuery('<select class="'+ name +' ui-corner-all" name="selectBox" ID="selectBox" type="' + name + '"  title="' + title + '"/>');
 	  parent.append(selectBox); 
 	  
     return selectBox;
@@ -616,10 +618,7 @@ iiv.Viewer.UI = new iiv.Class({
       viewerUI.buttonMultiPolygon.click(function() {
     	viewerUI.multipolygonToggle();
       });
-      // Mark, fuction for Hide Annotation Button
-      viewerUI.buttonHideAnnotation.click(function() {
-           viewerUI.hideAnnotationToggle();
-       });
+
       // Mark, Function for Flag annotation button
       viewerUI.buttonFlagAnnotation.click(function() {
            viewerUI.flagAnnotationToggle();
@@ -731,8 +730,7 @@ iiv.Viewer.UI = new iiv.Class({
 
   // Mark Annotation Hide / Show
   hideAnnotationToggle: function(){
-       //alert("Hook for annotations Hide / Show");
-       //queryForAnnotation(this.viewer.currentPid());
+       toggleAnnotationLayer();
 
    },
    // Mark Annotations Flagging

@@ -245,11 +245,11 @@ button.highlight {
 }
 /*Sab*/
 button.polygon{
-    margin-left: 70px;
+    margin-left: 35px;
 }
 /*Sab*/
 button.poly{
-    margin-left: 105px;
+    margin-left: 70px;
 }
 
 /*Hat Project Pete*/
@@ -273,7 +273,7 @@ button.buttonHideAnnotation{
 
 /*Mark*/
 button.buttonFlagAnnotation{
-    margin-left: 35px;
+    margin-left: 0px;
 }
 
 /*Mark*/
